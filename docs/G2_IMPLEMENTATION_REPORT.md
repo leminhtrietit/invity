@@ -6,7 +6,7 @@ Ngày kiểm tra: 11/09/2026. Phạm vi: INV-201 đến INV-207.
 
 Implementation và database gate G2 đã hoàn tất. Ba migration đã được áp dụng vào project Supabase `invity` riêng; bộ pgTAP và kiểm thử concurrency đều chạy thành công trực tiếp trên database remote.
 
-G1 còn Gate live: Google provider hiện tắt và Vercel staging chưa được tạo. Vì vậy kiểm tra owner isolation bằng hai phiên Google qua HTTP vẫn chờ G1, dù RLS/RPC đã được kiểm tra bằng hai identity database độc lập.
+G1 còn Gate live: Vercel staging đã hoạt động nhưng Google provider hiện tắt. Vì vậy kiểm tra owner isolation bằng hai phiên Google qua HTTP vẫn chờ credential OAuth, dù RLS/RPC đã được kiểm tra bằng hai identity database độc lập.
 
 ## Kết quả theo issue
 
@@ -66,7 +66,7 @@ Workflow CI đã được mở rộng theo thứ tự:
 3. Chạy 25 assertion pgTAP trong `supabase/tests/g2_core.test.sql`.
 4. Chạy kiểm thử concurrency hai connection bằng `scripts/test-g2-concurrency.mjs`.
 
-Máy hiện tại không có Docker và PostgreSQL cục bộ không cài pgTAP. Bộ 25 assertion đã được chạy bằng SQL transaction trực tiếp trên project Supabase remote và rollback toàn bộ fixture. CLI `supabase test db` vẫn cần Docker để dùng runner pgTAP, nên CI giữ quy trình local image như cấu hình.
+Bộ 25 assertion đã được chạy bằng SQL transaction trực tiếp trên project Supabase remote và rollback toàn bộ fixture. GitHub Actions cũng dựng Supabase local từ database sạch rồi chạy lại cùng bộ pgTAP và kiểm thử concurrency thành công trong run `34516090777`.
 
 Lần chạy đầu phát hiện Supabase tự cấp `EXECUTE` cho API roles khi tạo public function. Migration `20260911120000_g2_function_privileges.sql` đã thu hồi quyền cụ thể khỏi `anon/authenticated` và chỉ cấp worker RPC cho `service_role`; chạy lại đạt 25/25.
 
@@ -82,5 +82,5 @@ Lần chạy đầu phát hiện Supabase tự cấp `EXECUTE` cho API roles khi
 ## Trạng thái Gate G2
 
 - Database gate đã đóng: migration remote, pgTAP, RLS/ACL và concurrency đều đạt.
-- Workflow GitHub CI sẽ xác nhận lại từ database sạch sau khi mã nguồn được push.
+- Workflow GitHub CI đã xác nhận lại từ database sạch trong run `34516090777`.
 - Kiểm tra bằng hai tài khoản Google staging qua API thật được theo dõi trong Gate G1/G4 vì Google provider chưa cấu hình và owner event API chưa được triển khai.

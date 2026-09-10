@@ -123,7 +123,7 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 ## 5. G1 — Nền tảng, môi trường và Google Auth
 
-> Trạng thái kiểm tra lại 11/09/2026: Supabase `invity` riêng đã liên kết và nhận migration; tài khoản Vercel đã xác thực. Google provider hiện vẫn tắt và chưa có Vercel project/domain staging, vì vậy Gate live chưa đóng. Không sử dụng project `leminhtriet.com`. Xem `docs/G1_IMPLEMENTATION_REPORT.md`.
+> Trạng thái kiểm tra lại 11/09/2026: Supabase `invity` riêng đã nhận migration; Vercel staging hoạt động tại `https://invity-ten.vercel.app`, GitHub CI xanh và callback đã allowlist. Google provider vẫn tắt vì chưa có client ID/secret, nên Gate live chỉ còn phần nghiệm thu đăng nhập Google. Không sử dụng project `leminhtriet.com`. Xem `docs/G1_IMPLEMENTATION_REPORT.md`.
 
 **Phụ thuộc:** G0. **Chủ trì:** TL/BE; FE làm app shell.
 

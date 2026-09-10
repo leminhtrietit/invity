@@ -1,0 +1,15 @@
+node_modules/
+.pnpm-store/
+.next/
+out/
+coverage/
+.vercel/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+!.env.example
+supabase/.branches/
+supabase/.temp/
+debug.log
+pnpm-debug.log*

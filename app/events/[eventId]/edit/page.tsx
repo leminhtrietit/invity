@@ -12,9 +12,9 @@ export default async function EditEventPage({ params }: { params: Promise<{ even
   if (!(await getCurrentAppUser())) redirect("/login?returnTo=%2Fdashboard");
   const { eventId } = await params;
   const supabase = await createSupabaseServerClient();
-  const { data } = await supabase.from("events").select("id,template_id,lifecycle,event_drafts(revision,content)").eq("id", eventId).eq("lifecycle", "draft").maybeSingle();
+  const { data } = await supabase.from("events").select("id,template_id,lifecycle,public_code,event_drafts(revision,content)").eq("id", eventId).in("lifecycle", ["draft", "published", "hidden"]).maybeSingle();
   if (!data) notFound();
   const draft = Array.isArray(data.event_drafts) ? data.event_drafts[0] : data.event_drafts;
   const parsed = invitationContentSchema.safeParse(draft?.content);
-  return <EventEditor eventId={data.id} initialContent={parsed.success ? parsed.data : defaultDraftContent()} initialRevision={draft?.revision ?? 1} initialTemplateId={data.template_id} initiallyPersisted={parsed.success} />;
+  return <EventEditor eventId={data.id} initialContent={parsed.success ? parsed.data : defaultDraftContent()} initialRevision={draft?.revision ?? 1} initialTemplateId={data.template_id} initiallyPersisted={parsed.success} initialLifecycle={data.lifecycle} initialPublicCode={data.public_code} />;
 }

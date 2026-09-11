@@ -7,6 +7,8 @@ export const eventCategorySchema = z.enum(["wedding", "engagement", "birthday_ba
 export const createEventSchema = z.object({ templateId: z.string().min(1).max(80), eventCategory: eventCategorySchema });
 export const saveDraftSchema = z.object({ revision: z.number().int().positive(), content: invitationContentSchema });
 export const switchTemplateSchema = z.object({ templateId: z.string().min(1).max(80), revision: z.number().int().positive() });
+export const publishEventSchema = z.object({ revision: z.number().int().positive() });
+export const lifecycleSchema = z.object({ target: z.enum(["published", "hidden", "cancelled", "archived"]) });
 export const mediaUploadSchema = z.object({
   filename: z.string().trim().min(1).max(255),
   byteSize: z.number().int().positive().max(15 * 1024 * 1024),
@@ -32,6 +34,6 @@ export function validateTemplateCategory(templateId: string, category: string) {
 }
 
 export function databaseErrorCode(message?: string) {
-  const codes = ["DRAFT_LIMIT_EXCEEDED", "REVISION_CONFLICT", "TEMPLATE_NOT_AVAILABLE", "STORAGE_QUOTA_EXCEEDED", "NOT_FOUND", "UNAUTHENTICATED"];
+  const codes = ["DRAFT_LIMIT_EXCEEDED", "EVENT_QUOTA_EXCEEDED", "REVISION_CONFLICT", "TEMPLATE_NOT_AVAILABLE", "STORAGE_QUOTA_EXCEEDED", "MEDIA_NOT_READY", "PREFLIGHT_FAILED", "INVALID_EVENT_TRANSITION", "NOT_FOUND", "UNAUTHENTICATED"];
   return codes.find((code) => message?.includes(code));
 }

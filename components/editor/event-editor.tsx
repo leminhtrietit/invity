@@ -30,13 +30,16 @@ async function optimizeImage(file: File) {
   return new File([blob], `${file.name.replace(/\.[^.]+$/, "")}.webp`, { type: blob.type || "image/webp" });
 }
 
-export function EventEditor({ eventId, initialContent, initialRevision, initialTemplateId, initiallyPersisted }: { eventId: string; initialContent: InvitationContent; initialRevision: number; initialTemplateId: string; initiallyPersisted: boolean }) {
+export function EventEditor({ eventId, initialContent, initialRevision, initialTemplateId, initiallyPersisted, initialLifecycle, initialPublicCode }: { eventId: string; initialContent: InvitationContent; initialRevision: number; initialTemplateId: string; initiallyPersisted: boolean; initialLifecycle: string; initialPublicCode: string }) {
   const [content, setContent] = useState(initialContent);
   const [templateId, setTemplateId] = useState(initialTemplateId);
   const [saveState, setSaveState] = useState<SaveState>(initiallyPersisted ? "saved" : "dirty");
   const [mobilePane, setMobilePane] = useState<"edit" | "preview">("edit");
   const [retry, setRetry] = useState(0);
   const [uploadState, setUploadState] = useState<string>();
+  const [lifecycle, setLifecycle] = useState(initialLifecycle);
+  const [publishState, setPublishState] = useState<"idle" | "publishing" | "error">("idle");
+  const [publishError, setPublishError] = useState<string>();
   const revisionRef = useRef(initialRevision);
   const firstRender = useRef(initiallyPersisted);
   const templateTheme = getTemplate(templateId)?.theme ?? templateCatalog[0].theme;
@@ -125,10 +128,26 @@ export function EventEditor({ eventId, initialContent, initialRevision, initialT
     setUploadState("Media vẫn đang xử lý. Bạn có thể tiếp tục chỉnh nội dung.");
   }
 
+  async function publish() {
+    if (saveState !== "saved") return;
+    setPublishState("publishing"); setPublishError(undefined);
+    const response = await fetch(`/api/v1/events/${eventId}/publish`, { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() }, body: JSON.stringify({ revision: revisionRef.current }) });
+    const payload = await response.json();
+    if (!response.ok) { setPublishState("error"); setPublishError(payload.error?.message ?? "Không thể xuất bản thiệp."); return; }
+    setLifecycle("published"); setPublishState("idle");
+  }
+
+  async function hideInvitation() {
+    const response = await fetch(`/api/v1/events/${eventId}/lifecycle`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target: "hidden" }) });
+    if (response.ok) setLifecycle("hidden"); else setPublishError("Không thể tạm ẩn thiệp.");
+  }
+
   return <div className="editor-shell">
     <aside className="editor-sidebar"><a className="display editor-logo" href="/dashboard">Invite</a><p className="eyebrow">Trình soạn thiệp</p>{["Nội dung", "Hình ảnh", "Giao diện", "Cài đặt"].map((item, index) => <button className={index === 0 ? "active" : ""} key={item} type="button"><span>0{index + 1}</span>{item}</button>)}</aside>
     <main className={`editor-form ${mobilePane === "preview" ? "mobile-hidden" : ""}`}>
-      <header className="editor-header"><div><p className="eyebrow">Bản nháp</p><h1 className="display">Kể câu chuyện của bạn</h1></div><span className={`save-state save-state-${saveState}`}>{labels[saveState]}</span></header>
+      <header className="editor-header"><div><p className="eyebrow">{lifecycle === "published" ? "Đã xuất bản" : lifecycle === "hidden" ? "Đang tạm ẩn" : "Bản nháp"}</p><h1 className="display">Kể câu chuyện của bạn</h1></div><div className="editor-publish-actions"><span className={`save-state save-state-${saveState}`}>{labels[saveState]}</span><button className="button button-primary" disabled={saveState !== "saved" || publishState === "publishing"} onClick={publish} type="button">{publishState === "publishing" ? "Đang xuất bản…" : lifecycle === "published" ? "Cập nhật thiệp" : "Xuất bản"}</button></div></header>
+      {publishError && <div className="editor-conflict" role="alert"><strong>Chưa thể xuất bản</strong><span>{publishError}</span></div>}
+      {(lifecycle === "published" || lifecycle === "hidden") && <div className="published-bar"><a href={`/e/${initialPublicCode}`} rel="noreferrer" target="_blank">Mở link khách ↗</a>{lifecycle === "published" ? <button onClick={hideInvitation} type="button">Tạm ẩn</button> : <button onClick={publish} type="button">Xuất bản lại</button>}</div>}
       {saveState === "conflict" && <div className="editor-conflict" role="alert"><strong>Bản nháp đã thay đổi ở nơi khác.</strong><span>Tải lại để lấy phiên bản mới; nội dung đang nhập vẫn còn trên màn hình này.</span><button onClick={() => location.reload()} type="button">Tải phiên bản mới</button></div>}
       <section className="editor-group"><div className="editor-group-title"><span>01</span><div><h2>Thông tin chính</h2><p>Tên và thời gian xuất hiện đầu tiên trên thiệp.</p></div></div>
         <label className="ui-field"><span>Tên sự kiện</span><input maxLength={120} value={content.title} onChange={(event) => update((current) => ({ ...current, title: event.target.value }))} /></label>
@@ -172,6 +191,6 @@ export function EventEditor({ eventId, initialContent, initialRevision, initialT
       </section>
     </main>
     <aside className={`editor-preview ${mobilePane === "edit" ? "mobile-hidden" : ""}`}><div className="editor-phone"><InvitationRenderer content={content} theme={theme} mode="preview" /></div></aside>
-    <nav className="editor-mobile-nav" aria-label="Chế độ soạn thiệp"><button aria-pressed={mobilePane === "edit"} onClick={() => setMobilePane("edit")} type="button">Sửa</button><button aria-pressed={mobilePane === "preview"} onClick={() => setMobilePane("preview")} type="button">Xem thử</button><button className="editor-mobile-cta" disabled={saveState !== "saved"} type="button">Tiếp tục</button></nav>
+    <nav className="editor-mobile-nav" aria-label="Chế độ soạn thiệp"><button aria-pressed={mobilePane === "edit"} onClick={() => setMobilePane("edit")} type="button">Sửa</button><button aria-pressed={mobilePane === "preview"} onClick={() => setMobilePane("preview")} type="button">Xem thử</button><button className="editor-mobile-cta" disabled={saveState !== "saved" || publishState === "publishing"} onClick={publish} type="button">{lifecycle === "published" ? "Cập nhật" : "Xuất bản"}</button></nav>
   </div>;
 }

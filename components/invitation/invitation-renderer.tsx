@@ -90,6 +90,7 @@ export function InvitationRenderer({ content, theme, mode }: { content: Invitati
         <h2>{content.venue.name}</h2>
         <p>{content.venue.address}</p>
         <a href={content.venue.mapUrl} target="_blank" rel="noreferrer">Xem chỉ đường <span aria-hidden="true">↗</span></a>
+        {mode === "public" && <iframe className={styles.map} loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={`https://www.google.com/maps?q=${encodeURIComponent(content.venue.address)}&output=embed`} title={`Bản đồ ${content.venue.name}`} />}
       </section>
 
       {content.sections.schedule && content.schedule.length > 0 && (

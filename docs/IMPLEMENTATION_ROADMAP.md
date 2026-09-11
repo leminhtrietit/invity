@@ -213,6 +213,8 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Phụ thuộc:** G4. **Chủ trì:** FE/BE.
 
+> Trạng thái 11/09/2026: Gate kỹ thuật đã đạt. Publish snapshot/version, quota tháng, public code, SSR envelope/audio/map, public media policy, lifecycle và OG 1200×630 đã triển khai; pgTAP đạt 60/60 và public E2E đạt. UAT owner trên Vercel chờ bật Google OAuth. Xem `docs/G5_IMPLEMENTATION_REPORT.md`.
+
 | Issue | Công việc | Đầu ra / nghiệm thu |
 |---|---|---|
 | INV-501 | Preflight và publish workflow | Kiểm tra trường bắt buộc, media, RSVP, quota; lỗi nêu đúng mục cần sửa |

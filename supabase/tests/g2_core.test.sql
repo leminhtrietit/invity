@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(37);
+select plan(60);
 
 select has_table('public', 'events', 'events table exists');
 select has_table('public', 'event_drafts', 'event drafts table exists');
@@ -227,6 +227,56 @@ select is(
   (select lifecycle from public.events where id = '40000000-0000-0000-0000-000000000003'),
   'deleted',
   'deleted draft no longer counts as an active draft'
+);
+
+select has_function('public', 'publish_event_draft', array['uuid', 'integer', 'uuid'], 'publish RPC exists');
+select has_function('public', 'change_event_lifecycle', array['uuid', 'text', 'uuid'], 'lifecycle RPC exists');
+select has_function('public', 'get_public_event', array['text'], 'public event resolver exists');
+select has_function('public', 'resolve_public_media', array['text', 'uuid'], 'public media resolver exists');
+select has_function('public', 'is_public_media_path', array['text'], 'public storage policy helper exists');
+select ok(
+  not has_function_privilege('anon', 'public.publish_event_draft(uuid,integer,uuid)', 'EXECUTE')
+  and has_function_privilege('authenticated', 'public.publish_event_draft(uuid,integer,uuid)', 'EXECUTE'),
+  'only authenticated owners can publish'
+);
+select ok(
+  has_function_privilege('anon', 'public.get_public_event(text)', 'EXECUTE')
+  and has_function_privilege('anon', 'public.resolve_public_media(text,uuid)', 'EXECUTE'),
+  'anonymous guests can resolve only public DTO and referenced media'
+);
+
+reset role;
+insert into public.events (id, owner_app_user_id, template_id, category) values
+  ('40000000-0000-0000-0000-000000000004','20000000-0000-0000-0000-000000000002','vow-editorial','wedding'),
+  ('40000000-0000-0000-0000-000000000005','20000000-0000-0000-0000-000000000002','vow-editorial','wedding');
+insert into public.event_drafts(event_id,content) values
+  ('40000000-0000-0000-0000-000000000004','{"title":"Public Wedding","hosts":[{"name":"A","role":"Host"}],"startsAt":"2026-12-20T11:00:00+07:00","venue":{"name":"Garden","address":"Saigon","mapUrl":"https://maps.google.com"},"cover":{"mediaAssetId":"70000000-0000-0000-0000-000000000002"},"rsvp":{"maxCompanions":2}}'),
+  ('40000000-0000-0000-0000-000000000005','{"title":"Second Wedding","hosts":[{"name":"B","role":"Host"}],"startsAt":"2026-12-21T11:00:00+07:00","venue":{"name":"Hall","address":"Saigon","mapUrl":"https://maps.google.com"},"rsvp":{"maxCompanions":1}}');
+insert into public.event_quota_counters(event_id) values
+  ('40000000-0000-0000-0000-000000000004'),('40000000-0000-0000-0000-000000000005');
+insert into public.media_assets(id,event_id,owner_app_user_id,kind,status,storage_key,byte_size,detected_mime_type,variants)
+values('70000000-0000-0000-0000-000000000002','40000000-0000-0000-0000-000000000004','20000000-0000-0000-0000-000000000002','cover','ready','public-test/cover.webp',1024,'image/webp','{"w1280":"public-test/cover-1280.webp"}');
+insert into storage.objects(bucket_id,name) values('event-media','public-test/cover-1280.webp');
+set local role authenticated;
+set local "request.jwt.claim.sub" = '10000000-0000-0000-0000-000000000002';
+select is((select version_number from public.publish_event_draft('40000000-0000-0000-0000-000000000004',1,'30000000-0000-0000-0000-000000000013')),1,'first publish creates version one');
+select is((select lifecycle from public.events where id='40000000-0000-0000-0000-000000000004'),'published','publish activates event');
+select is((public.get_public_event((select public_code from public.events where id='40000000-0000-0000-0000-000000000004'))#>>'{content,title}'),'Public Wedding','public resolver returns active immutable content');
+select is(public.resolve_public_media((select public_code from public.events where id='40000000-0000-0000-0000-000000000004'),'70000000-0000-0000-0000-000000000002'),'public-test/cover-1280.webp','public resolver returns only referenced ready media');
+select ok(public.is_public_media_path('public-test/cover-1280.webp'),'storage policy recognizes active published media path');
+select is((select replayed from public.publish_event_draft('40000000-0000-0000-0000-000000000004',1,'30000000-0000-0000-0000-000000000013')),true,'publish retry replays without another version');
+select is((select revision from public.save_event_draft('40000000-0000-0000-0000-000000000004',1,'{"title":"Updated Wedding","hosts":[{"name":"A","role":"Host"}],"startsAt":"2026-12-20T11:00:00+07:00","venue":{"name":"Garden","address":"Saigon","mapUrl":"https://maps.google.com"},"rsvp":{"maxCompanions":2}}','30000000-0000-0000-0000-000000000017')),2,'owner can keep editing draft after publication');
+select is((public.get_public_event((select public_code from public.events where id='40000000-0000-0000-0000-000000000004'))#>>'{content,title}'),'Public Wedding','draft edits do not change the active snapshot');
+select is(public.change_event_lifecycle('40000000-0000-0000-0000-000000000004','hidden','30000000-0000-0000-0000-000000000014'),'hidden','owner can temporarily hide publication');
+select is(public.get_public_event((select public_code from public.events where id='40000000-0000-0000-0000-000000000004')),null,'hidden event has no public DTO');
+select ok(not public.is_public_media_path('public-test/cover-1280.webp'),'hidden event media path is revoked immediately');
+select is((select version_number from public.publish_event_draft('40000000-0000-0000-0000-000000000004',2,'30000000-0000-0000-0000-000000000015')),2,'republish creates a new active version');
+select is((public.get_public_event((select public_code from public.events where id='40000000-0000-0000-0000-000000000004'))#>>'{content,title}'),'Updated Wedding','republish atomically exposes the new snapshot');
+select is((select count(*)::integer from public.publication_usage where event_id='40000000-0000-0000-0000-000000000004'),1,'event consumes monthly quota once across updates');
+select is((select count(distinct public_code)::integer from public.events where id='40000000-0000-0000-0000-000000000004'),1,'public code remains stable');
+select throws_ok(
+  $$ select * from public.publish_event_draft('40000000-0000-0000-0000-000000000005',1,'30000000-0000-0000-0000-000000000016') $$,
+  'P0001','EVENT_QUOTA_EXCEEDED','second first publication in Vietnam month is rejected'
 );
 
 reset role;

@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: "/e/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+      },
+      {
         source: "/(.*)",
         headers: [
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

@@ -13,7 +13,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test lib/auth/return-to.test.ts lib/environment-isolation.test.ts",
+    "test": "node --experimental-strip-types --test lib/auth/return-to.test.ts lib/environment-isolation.test.ts lib/invitation/schema.test.ts",
     "test:db:concurrency": "node scripts/test-g2-concurrency.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },

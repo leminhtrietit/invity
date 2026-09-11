@@ -168,6 +168,8 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 ## 7. G3 — Design system và renderer thiệp chuẩn
 
+> Trạng thái 11/09/2026: Gate kỹ thuật đã đạt. Design system, schema renderer, Vow Editorial hoàn chỉnh, catalog/preview 10 mẫu và migration template đã có; kiểm tra responsive 360–1280 px, tên dài và reduced motion đều đạt. Xem `docs/G3_IMPLEMENTATION_REPORT.md`.
+
 **Phụ thuộc:** G0; triển khai song song G1/G2. **Chủ trì:** UX/FE.
 
 | Issue | Công việc | Đầu ra / nghiệm thu |

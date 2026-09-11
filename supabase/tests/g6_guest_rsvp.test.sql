@@ -15,8 +15,8 @@ values('00000000-0000-0000-0000-000000000000','16000000-0000-0000-0000-000000000
 insert into public.app_users(id,email,display_name) values('26000000-0000-0000-0000-000000000001','g6-owner@example.test','G6 Owner');
 insert into public.auth_bindings(app_user_id,auth_user_id,provider,provider_subject) values('26000000-0000-0000-0000-000000000001','16000000-0000-0000-0000-000000000001','google','g6-owner');
 insert into public.templates(id,name,category,renderer_version,content_schema_version) values('g6-template','G6','wedding',1,1) on conflict(id) do nothing;
-insert into public.events(id,owner_app_user_id,template_id,category,lifecycle,starts_at,companion_limit)
-values('46000000-0000-0000-0000-000000000001','26000000-0000-0000-0000-000000000001','g6-template','wedding','published',now()+interval '10 days',3);
+insert into public.events(id,owner_app_user_id,template_id,category,lifecycle,starts_at,companion_limit,public_code)
+values('46000000-0000-0000-0000-000000000001','26000000-0000-0000-0000-000000000001','g6-template','wedding','published',now()+interval '10 days',3,'111111111111111111111111111111111111');
 insert into public.event_versions(id,event_id,version_number,template_id,renderer_version,content_schema_version,content)
 values('56000000-0000-0000-0000-000000000001','46000000-0000-0000-0000-000000000001',1,'g6-template',1,1,'{"rsvp":{"enabled":true}}');
 update public.events set published_version_id='56000000-0000-0000-0000-000000000001' where id='46000000-0000-0000-0000-000000000001';
@@ -37,8 +37,8 @@ select isnt((select token from g6_rotated),(select invitation_token from g6_pers
 select is(public.resolve_personal_invitation((select invitation_token from g6_personal)),null,'rotated old token no longer resolves');
 
 reset role;
-insert into public.events(id,owner_app_user_id,template_id,category,lifecycle,starts_at,companion_limit)
-values('46000000-0000-0000-0000-000000000002','26000000-0000-0000-0000-000000000001','g6-template','wedding','published',now()+interval '10 days',3);
+insert into public.events(id,owner_app_user_id,template_id,category,lifecycle,starts_at,companion_limit,public_code)
+values('46000000-0000-0000-0000-000000000002','26000000-0000-0000-0000-000000000001','g6-template','wedding','published',now()+interval '10 days',3,'222222222222222222222222222222222222');
 insert into public.event_versions(id,event_id,version_number,template_id,renderer_version,content_schema_version,content)
 values('56000000-0000-0000-0000-000000000002','46000000-0000-0000-0000-000000000002',1,'g6-template',1,1,'{"rsvp":{"enabled":true}}');
 update public.events set published_version_id='56000000-0000-0000-0000-000000000002' where id='46000000-0000-0000-0000-000000000002';
@@ -47,16 +47,16 @@ insert into public.guest_slots(event_id,allocation_number,allocation_source,disp
 select '46000000-0000-0000-0000-000000000002',n,'personalized','Seed '||n from generate_series(1,49)n;
 
 set local role anon;
-create temp table g6_shared as select * from public.submit_shared_rsvp((select public_code from public.events where id='46000000-0000-0000-0000-000000000002'),'Khách Chung','+84 912-345-678','attending',1,'Hạnh phúc nhé',false,repeat('a',64),'66000000-0000-0000-0000-000000000004');
+create temp table g6_shared as select * from public.submit_shared_rsvp('222222222222222222222222222222222222','Khách Chung','+84 912-345-678','attending',1,'Hạnh phúc nhé',false,repeat('a',64),'66000000-0000-0000-0000-000000000004');
 select is((select allocation_number from g6_shared),50,'shared RSVP atomically receives the last slot');
 reset role;
 select is((select phone_canonical from public.guest_slots where event_id='46000000-0000-0000-0000-000000000002' and allocation_number=50),'0912345678','Vietnam phone is canonicalized');
 set local role anon;
 select is((select revision from public.update_shared_rsvp((select edit_secret from g6_shared),'declined',0,'Hẹn dịp khác',false,'66000000-0000-0000-0000-000000000005')),2,'shared edit succeeds after quota is full');
-select throws_ok(format($q$select * from public.submit_shared_rsvp(%L,'Người Mới','0911111111','attending',0,'',false,%L,'66000000-0000-0000-0000-000000000006')$q$,(select public_code from public.events where id='46000000-0000-0000-0000-000000000002'),repeat('b',64)),'P0001','GUEST_QUOTA_EXCEEDED','a new shared RSVP is blocked at 50');
+select throws_ok(format($q$select * from public.submit_shared_rsvp('222222222222222222222222222222222222','Người Mới','0911111111','attending',0,'',false,%L,'66000000-0000-0000-0000-000000000006')$q$,repeat('b',64)),'P0001','GUEST_QUOTA_EXCEEDED','a new shared RSVP is blocked at 50');
+reset role;
 select is((select count(*)::integer from public.guest_slots where event_id='46000000-0000-0000-0000-000000000002'),50,'failed shared RSVP creates no partial guest');
 select is((select guest_slots_used from public.event_quota_counters where event_id='46000000-0000-0000-0000-000000000002'),50,'failed shared RSVP leaves quota at 50');
-reset role;
 select is((select count(*)::integer from public.idempotency_requests where response_body::text like '%edit_secret%' or response_body::text like '%invitation_token%'),0,'idempotency responses contain no raw token fields');
 
 select * from finish();

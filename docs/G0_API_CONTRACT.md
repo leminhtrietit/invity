@@ -48,7 +48,10 @@ Mọi write có side effect nhận `Idempotency-Key` UUID trong header; server l
 |---|---|---|
 | `GET /public/events/:publicCode` | — | `PublicEventDTO` chỉ khi lifecycle `published`; SSR route dùng cùng contract. |
 | `GET /public/events/:publicCode/rsvp-config` | — | Cấu hình form không PII; evaluates lifecycle/deadline. |
-| `GET /public/events/:publicCode/gift-options` | — | Chỉ khi event published và chủ tiệc bật quà; trả `PublicGiftRecipientDTO` tối thiểu cho dialog/QR, không đưa vào `PublicEventDTO` hay OG. |
+| `POST /public/events/:publicCode/gifts` | `recipientId`, `amount?`, `addInfo?` | Chỉ khi event published, bật quà và account đã xác nhận; account phải thuộc event. Trả recipient sau thao tác chủ động và URL ảnh proxy, không đưa số tài khoản vào `PublicEventDTO` hay OG. |
+| `GET /public/events/:publicCode/gifts/image` | `recipientId`, `amount?`, `addInfo?`, `download?` | Server tự lấy account theo event, tạo Quick Link VietQR qua origin allowlist và stream ảnh `no-store`; lỗi provider trả 502 để UI giữ fallback sao chép. |
+| `GET/POST /events/:eventId/gifts` | cấu hình account đã xác nhận | Owner đọc/lưu tối đa 2 account; số tài khoản mã hóa ở database. Sửa sau publish yêu cầu JWT có `iat` trong 15 phút. |
+| `DELETE /events/:eventId/gifts/:giftId` | — | Owner xóa account, kiểm tra recent auth sau publish và ghi audit. |
 | `POST /public/events/:publicCode/rsvps` | `{name, phone, response, companionCount, wish, consentPublicWish, honeypot}` + idempotency | Link chung: transaction cấp guest slot nếu mới rồi tạo RSVP. Không tiết lộ phone trùng. |
 | `GET /i/:invitationToken` | Token path only | Resolve token hash, không log raw token; token thu hồi trả 404/403 an toàn. |
 | `PATCH /i/:invitationToken/rsvp` | RSVP payload + idempotency | Sửa RSVP của guest gắn token, không cấp slot. |

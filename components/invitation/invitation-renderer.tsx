@@ -26,7 +26,7 @@ function formatWeekday(value: string) {
   return new Intl.DateTimeFormat("vi-VN", { weekday: "long", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(value));
 }
 
-export function InvitationRenderer({ content, theme, mode }: { content: InvitationContent; theme: InvitationTheme; mode: InvitationMode }) {
+export function InvitationRenderer({ content, theme, mode, onOpenGift }: { content: InvitationContent; theme: InvitationTheme; mode: InvitationMode; onOpenGift?:()=>void }) {
   const themeStyle: ThemeStyle = {
     "--invite-bg": theme.background,
     "--invite-surface": theme.surface,
@@ -125,7 +125,7 @@ export function InvitationRenderer({ content, theme, mode }: { content: Invitati
       {content.sections.gift && content.gift.enabled && (
         <section className={styles.gift}>
           <span aria-hidden="true">✦</span><div><p className={styles.kicker}>Gửi lời chúc từ xa</p><h2>Món quà nhỏ</h2><p>{content.gift.message}</p></div>
-          <button type="button" disabled={mode === "preview"}>Xem mã VietQR</button>
+          <button type="button" disabled={mode === "preview"||!onOpenGift} onClick={onOpenGift}>{mode==="public"&&!onOpenGift?"Chưa có tài khoản":"Xem mã VietQR"}</button>
         </section>
       )}
 

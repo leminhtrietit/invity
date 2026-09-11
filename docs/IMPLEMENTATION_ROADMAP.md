@@ -298,6 +298,8 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Gate G8:** QR đúng cấu hình và đầu vào; không lộ/sửa chéo tài khoản; giao diện không khiến người dùng hiểu ứng dụng đã xác nhận nhận tiền.
 
+> Trạng thái 12/09/2026: G8 đã triển khai đủ INV-801–805. Account được mã hóa AES-256 qua pgcrypto với key riêng trong schema `private`; thay đổi sau publish yêu cầu session mới trong 15 phút và có audit. Public event/OG chỉ nhận recipient đã mask, còn server kiểm tra account thuộc event trước khi proxy ảnh từ allowlist `img.vietqr.io`. UI có số tiền tùy chọn, copy/download/fallback và tuyên bố rõ hệ thống không xác nhận giao dịch. Xem `docs/G8_IMPLEMENTATION_REPORT.md`.
+
 ## 13. G9 — Hoàn thiện sản phẩm ra mắt
 
 **Phụ thuộc:** công việc thiết kế bắt đầu sau G3; tích hợp sau G5/G7/G8. **Chủ trì:** UX/FE; BE làm admin/waitlist.

@@ -56,6 +56,7 @@ jobs:
       - run: supabase test db supabase/tests/g2_core.test.sql
       - run: supabase test db supabase/tests/g6_guest_rsvp.test.sql
       - run: supabase test db supabase/tests/g7_dashboard_wishes.test.sql
+      - run: supabase test db supabase/tests/g8_vietqr.test.sql
       - run: pnpm test:db:concurrency
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres

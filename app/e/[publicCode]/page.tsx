@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { PublicInvitation } from "@/components/invitation/public-invitation";
-import { loadPublicEvent } from "@/lib/events/public-event";
+import { loadPublicEvent,loadPublicGiftOptions } from "@/lib/events/public-event";
 import { getTemplate } from "@/lib/templates/catalog";
 
 export async function generateMetadata({ params }: { params: Promise<{ publicCode: string }> }): Promise<Metadata> {
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ publicCod
 
 export default async function PublicEventPage({ params }: { params: Promise<{ publicCode: string }> }) {
   const { publicCode } = await params;
-  const event = await loadPublicEvent(publicCode);
+  const [event,giftOptions] = await Promise.all([loadPublicEvent(publicCode),loadPublicGiftOptions(publicCode)]);
   if (!event) notFound();
   const baseTheme = getTemplate(event.templateId)?.theme;
   if (!baseTheme) notFound();
@@ -26,5 +26,5 @@ export default async function PublicEventPage({ params }: { params: Promise<{ pu
     const { data } = await (await import("@/lib/events/public-event")).createPublicSupabaseClient().rpc("resolve_shared_rsvp_edit", { p_edit_secret: secret });
     if (data?.publicCode === publicCode) initialRsvp = data;
   }
-  return <main><PublicInvitation content={event.content} theme={{ ...baseTheme, ...event.content.appearance }} publicCode={publicCode} guestName={initialRsvp?.name} initialRsvp={initialRsvp} /></main>;
+  return <main><PublicInvitation content={event.content} theme={{ ...baseTheme, ...event.content.appearance }} publicCode={publicCode} giftOptions={giftOptions} guestName={initialRsvp?.name} initialRsvp={initialRsvp} /></main>;
 }

@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { invitationContentSchema, type InvitationContent } from "../invitation/schema.ts";
+import type { PublicGiftOption } from "../gifts/schema.ts";
 
 export type PublicEvent = { publicCode: string; eventVersion: number; templateId: string; content: InvitationContent };
 
@@ -34,3 +35,10 @@ export async function loadPublicEvent(publicCode: string): Promise<PublicEvent |
 }
 
 export function createPublicSupabaseClient() { return publicClient(); }
+
+export async function loadPublicGiftOptions(publicCode:string):Promise<PublicGiftOption[]> {
+  if(!/^[0-9a-f]{36}$/i.test(publicCode)) return [];
+  const {data,error}=await publicClient().rpc("get_public_gift_options",{p_public_code:publicCode});
+  if(error||!Array.isArray(data)) return [];
+  return data.flatMap((value)=>typeof value==="object"&&value&&"id" in value&&"last4" in value?[value as PublicGiftOption]:[]);
+}

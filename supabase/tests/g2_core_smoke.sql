@@ -15,7 +15,8 @@ insert into public.auth_bindings (app_user_id, auth_user_id, provider, provider_
   ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'google', 'google-owner-a'),
   ('20000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000002', 'google', 'google-owner-b');
 insert into public.templates (id, name, category, renderer_version, content_schema_version)
-values ('vow-editorial', 'Vow Editorial', 'wedding', 1, 1);
+values ('vow-editorial', 'Vow Editorial', 'wedding', 1, 1)
+on conflict (id) do nothing;
 
 set local role authenticated;
 set local "request.jwt.claim.sub" = '10000000-0000-0000-0000-000000000001';

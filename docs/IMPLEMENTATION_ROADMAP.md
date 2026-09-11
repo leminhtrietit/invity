@@ -276,6 +276,8 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Gate G7:** Số liệu khớp database, lời chúc đúng quyền hiển thị, CSV/XLSX dùng được với dữ liệu tiếng Việt.
 
+> Trạng thái 12/09/2026: Gate kỹ thuật G7 đã đạt. Dashboard dùng chung một bộ dữ liệu cho summary, tìm kiếm/lọc và export; lời chúc chỉ public khi còn consent và đã được owner duyệt; CSV/XLSX được kiểm tra với tiếng Việt, số điện thoại có số 0 đầu và dữ liệu chống formula injection. Xem `docs/G7_IMPLEMENTATION_REPORT.md`.
+
 ## 12. G8 — VietQR động
 
 **Phụ thuộc:** G2 + G5; chạy song song G6/G7 nếu đủ người. **Chủ trì:** BE/FE.

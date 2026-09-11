@@ -34,9 +34,11 @@ Mọi write có side effect nhận `Idempotency-Key` UUID trong header; server l
 | `POST /events/:eventId/lifecycle` | `{target: hidden|published|cancelled|archived|deleted}` | Chỉ các transition ở G0 data model. |
 | `GET /events/:eventId/guests` | filter/cursor | Owner-only; phone never returned outside owner scope. |
 | `POST /events/:eventId/guests` | guest info minimal | Cấp guest + token bằng transaction quota. |
-| `POST /events/:eventId/guests/:guestId/tokens/rotate` | — | Thu hồi token cũ, cấp token mới; không hoàn quota. |
+| `POST /events/:eventId/guests/:guestId/rotate` | — | Thu hồi token cũ, cấp token mới; không hoàn quota. |
 | `PATCH /events/:eventId/guests/:guestId` | note/sent/revoke | `sent` chỉ theo hành động owner; no quota refund. |
-| `GET /events/:eventId/exports` | type, filters | Owner-only, không gồm token; CSV/XLSX download ngắn hạn. |
+| `PATCH /events/:eventId/wishes/:guestId` | `{target: approved|hidden}` | Chỉ owner; approved yêu cầu consent công khai còn hiệu lực. |
+| `GET /events/:eventId/exports/rsvps.csv` | filters | CSV UTF-8 BOM, owner-only, no-store, không gồm token. |
+| `GET /events/:eventId/exports/rsvps.xlsx` | filters | XLSX có filter/freeze/text phone, owner-only, no-store. |
 
 `DraftContentDTO` validates limits của roadmap: 1 cover + 12 album, tối đa 3 locations, 12 schedule items, 2 gift accounts, companion limit 0–10, RSVP deadline không sau `endsAt`.
 
@@ -50,8 +52,8 @@ Mọi write có side effect nhận `Idempotency-Key` UUID trong header; server l
 | `POST /public/events/:publicCode/rsvps` | `{name, phone, response, companionCount, wish, consentPublicWish, honeypot}` + idempotency | Link chung: transaction cấp guest slot nếu mới rồi tạo RSVP. Không tiết lộ phone trùng. |
 | `GET /i/:invitationToken` | Token path only | Resolve token hash, không log raw token; token thu hồi trả 404/403 an toàn. |
 | `PATCH /i/:invitationToken/rsvp` | RSVP payload + idempotency | Sửa RSVP của guest gắn token, không cấp slot. |
-| `POST /public/rsvps/:editSecret/session` | edit secret | Chuyển secret thành Secure/HttpOnly/SameSite cookie rồi redirect URL sạch. |
-| `PATCH /public/rsvps/me` | RSVP payload + cookie + idempotency | Chỉ sửa RSVP đã tạo ra secret/session tương ứng. |
+| `GET /r/:editSecret` | edit secret | Chuyển secret thành Secure/HttpOnly/SameSite cookie rồi redirect URL sạch. |
+| `PATCH /public/events/:publicCode/rsvps/me` | RSVP payload + cookie + idempotency | Chỉ sửa RSVP đã tạo ra secret/session tương ứng. |
 
 `response` chỉ là `attending|declined`; `companionCount` phải là integer `0..event.companionLimit` và bắt buộc 0 với `declined`. Phone được canonicalize server; đó không là xác minh số điện thoại. Endpoint public có rate limit bền vững, honeypot và CAPTCHA thích ứng.
 

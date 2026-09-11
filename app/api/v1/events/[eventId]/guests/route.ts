@@ -2,18 +2,15 @@ import { getCurrentAppUser } from "@/lib/auth/current-user";
 import { apiError, apiSuccess, requestId } from "@/lib/http/api-response";
 import { personalGuestSchema, rsvpDatabaseError } from "@/lib/rsvp/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { filterDashboardGuests, loadEventDashboard, parseDashboardFilters } from "@/lib/rsvp/dashboard";
 
-export async function GET(_: Request, { params }: { params: Promise<{ eventId: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ eventId: string }> }) {
   if (!(await getCurrentAppUser())) return apiError(401, "UNAUTHENTICATED", "Phiên đăng nhập không hợp lệ.");
   const { eventId } = await params;
-  const supabase = await createSupabaseServerClient();
-  const [{ data: event }, { data: counter }, { data: guests }] = await Promise.all([
-    supabase.from("events").select("id,public_code,lifecycle").eq("id", eventId).maybeSingle(),
-    supabase.from("event_quota_counters").select("guest_slots_used").eq("event_id", eventId).maybeSingle(),
-    supabase.from("guest_slots").select("id,allocation_number,allocation_source,display_name,salutation,guest_group,owner_note,sent_at,revoked_at,created_at,rsvps(response,companion_count,revision,updated_at)").eq("event_id", eventId).order("allocation_number"),
-  ]);
-  if (!event) return apiError(404, "NOT_FOUND", "Không tìm thấy sự kiện.");
-  return apiSuccess({ event, quota: { used: counter?.guest_slots_used ?? 0, limit: 50 }, guests: guests ?? [] });
+  const dashboard = await loadEventDashboard(await createSupabaseServerClient(),eventId);
+  if (!dashboard) return apiError(404, "NOT_FOUND", "Không tìm thấy sự kiện.");
+  const filters=parseDashboardFilters(new URL(request.url).searchParams);
+  return apiSuccess({ event:dashboard.event, summary:dashboard.summary, opens:dashboard.opens, filters, guests:filterDashboardGuests(dashboard.guests,filters) });
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ eventId: string }> }) {

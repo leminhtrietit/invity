@@ -13,7 +13,11 @@ function mediaUrl(publicCode: string, mediaAssetId: string) {
 
 export async function loadPublicEvent(publicCode: string): Promise<PublicEvent | null> {
   if (!/^[0-9a-f]{36}$/i.test(publicCode)) return null;
-  const { data, error } = await publicClient().rpc("get_public_event", { p_public_code: publicCode });
+  const client = publicClient();
+  const [{ data, error }, { data: publicWishes }] = await Promise.all([
+    client.rpc("get_public_event", { p_public_code: publicCode }),
+    client.rpc("get_public_wishes", { p_public_code: publicCode }),
+  ]);
   if (error || !data || typeof data !== "object") return null;
   const raw = data as { publicCode?: string; eventVersion?: number; templateId?: string; content?: unknown };
   const parsed = invitationContentSchema.safeParse(raw.content);
@@ -22,6 +26,10 @@ export async function loadPublicEvent(publicCode: string): Promise<PublicEvent |
   if (content.cover?.mediaAssetId) content.cover.src = mediaUrl(publicCode, content.cover.mediaAssetId);
   content.album = content.album.map((item) => item.mediaAssetId ? { ...item, src: mediaUrl(publicCode, item.mediaAssetId) } : item);
   if (content.music?.mediaAssetId) content.music.src = mediaUrl(publicCode, content.music.mediaAssetId);
+  if (content.wishes.enabled) {
+    const wishes = Array.isArray(publicWishes) ? publicWishes : [];
+    content.wishes.samples = wishes.flatMap((wish) => typeof wish === "object" && wish && "author" in wish && "message" in wish ? [{ author: String(wish.author).slice(0,80), message: String(wish.message).slice(0,360) }] : []);
+  }
   return { publicCode: raw.publicCode, eventVersion: raw.eventVersion, templateId: raw.templateId, content };
 }
 

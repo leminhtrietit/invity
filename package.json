@@ -13,13 +13,14 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test lib/auth/return-to.test.ts lib/environment-isolation.test.ts lib/invitation/schema.test.ts lib/events/draft.test.ts lib/rsvp/schema.test.ts",
+    "test": "node --experimental-strip-types --test lib/auth/return-to.test.ts lib/environment-isolation.test.ts lib/invitation/schema.test.ts lib/events/draft.test.ts lib/rsvp/schema.test.ts lib/rsvp/dashboard.test.ts lib/rsvp/export.test.ts",
     "test:db:concurrency": "node scripts/test-g2-concurrency.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",
     "@supabase/supabase-js": "2.112.3",
+    "exceljs": "^4.4.0",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",

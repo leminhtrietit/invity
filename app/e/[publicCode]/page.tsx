@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { PublicInvitation } from "@/components/invitation/public-invitation";
 import { loadPublicEvent } from "@/lib/events/public-event";
 import { getTemplate } from "@/lib/templates/catalog";
@@ -19,5 +20,11 @@ export default async function PublicEventPage({ params }: { params: Promise<{ pu
   if (!event) notFound();
   const baseTheme = getTemplate(event.templateId)?.theme;
   if (!baseTheme) notFound();
-  return <main><PublicInvitation content={event.content} theme={{ ...baseTheme, ...event.content.appearance }} /></main>;
+  const secret = (await cookies()).get(`invity_rsvp_${publicCode}`)?.value;
+  let initialRsvp = null;
+  if (secret) {
+    const { data } = await (await import("@/lib/events/public-event")).createPublicSupabaseClient().rpc("resolve_shared_rsvp_edit", { p_edit_secret: secret });
+    if (data?.publicCode === publicCode) initialRsvp = data;
+  }
+  return <main><PublicInvitation content={event.content} theme={{ ...baseTheme, ...event.content.appearance }} publicCode={publicCode} guestName={initialRsvp?.name} initialRsvp={initialRsvp} /></main>;
 }

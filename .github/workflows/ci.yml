@@ -54,6 +54,7 @@ jobs:
       - run: supabase start
       - run: supabase db reset --local --no-seed
       - run: supabase test db supabase/tests/g2_core.test.sql
+      - run: supabase test db supabase/tests/g6_guest_rsvp.test.sql
       - run: pnpm test:db:concurrency
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres

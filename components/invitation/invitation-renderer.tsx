@@ -118,7 +118,7 @@ export function InvitationRenderer({ content, theme, mode }: { content: Invitati
           <p className={styles.kicker}>Xác nhận tham dự</p>
           <h2>Bạn sẽ đến chung vui chứ?</h2>
           <p>Phản hồi của bạn giúp chúng mình chuẩn bị một chỗ ngồi thật chu đáo.</p>
-          <button type="button" disabled={mode === "preview"}>{mode === "preview" ? "RSVP tắt trong bản xem thử" : "Gửi xác nhận"}</button>
+          {mode === "preview" ? <button type="button" disabled>RSVP tắt trong bản xem thử</button> : <a href="#rsvp-form">Gửi xác nhận</a>}
         </section>
       )}
 

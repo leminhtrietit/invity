@@ -8,6 +8,7 @@ const sql = postgres(databaseUrl, { max: 5, onnotice: () => {} });
 const authUserId = randomUUID();
 const appUserId = randomUUID();
 const eventId = randomUUID();
+const versionId = randomUUID();
 const templateId = `concurrency-${randomUUID()}`;
 
 async function allocate(label) {
@@ -15,13 +16,25 @@ async function allocate(label) {
     await transaction.unsafe("set local role authenticated");
     await transaction`select set_config('request.jwt.claim.sub', ${authUserId}, true)`;
     return transaction`
-      select * from public.allocate_personal_guest_slot(
+      select * from public.create_personal_invitation(
         ${eventId}::uuid,
         ${label},
         null,
         null,
         null,
         ${randomUUID()}::uuid
+      )
+    `;
+  });
+}
+
+async function sharedRsvp(publicCode) {
+  return sql.begin(async (transaction) => {
+    await transaction.unsafe("set local role anon");
+    return transaction`
+      select * from public.submit_shared_rsvp(
+        ${publicCode}, 'Race Shared Guest', '0912345678', 'attending', 0, '', false,
+        ${"c".repeat(64)}, ${randomUUID()}::uuid
       )
     `;
   });
@@ -48,10 +61,15 @@ try {
     values (${templateId}, 'Concurrency Template', 'wedding', 1, 1)
   `;
   await sql`
-    insert into public.events (id, owner_app_user_id, template_id, category)
-    values (${eventId}, ${appUserId}, ${templateId}, 'wedding')
+    insert into public.events (id, owner_app_user_id, template_id, category, lifecycle, starts_at, companion_limit)
+    values (${eventId}, ${appUserId}, ${templateId}, 'wedding', 'published', now() + interval '10 days', 3)
   `;
   await sql`insert into public.event_drafts (event_id) values (${eventId})`;
+  await sql`
+    insert into public.event_versions (id,event_id,version_number,template_id,renderer_version,content_schema_version,content)
+    values (${versionId},${eventId},1,${templateId},1,1,'{"rsvp":{"enabled":true}}')
+  `;
+  await sql`update public.events set published_version_id=${versionId} where id=${eventId}`;
   await sql`insert into public.event_quota_counters (event_id, guest_slots_used) values (${eventId}, 49)`;
   await sql`
     insert into public.guest_slots (event_id, allocation_number, allocation_source, display_name)
@@ -59,7 +77,8 @@ try {
     from generate_series(1, 49) n
   `;
 
-  const outcomes = await Promise.allSettled([allocate("Race Guest A"), allocate("Race Guest B")]);
+  const [{ public_code: publicCode }] = await sql`select public_code from public.events where id=${eventId}`;
+  const outcomes = await Promise.allSettled([allocate("Race Personal Guest"), sharedRsvp(publicCode)]);
   const succeeded = outcomes.filter((outcome) => outcome.status === "fulfilled");
   const failed = outcomes.filter((outcome) => outcome.status === "rejected");
   if (succeeded.length !== 1 || failed.length !== 1) {
@@ -77,7 +96,7 @@ try {
   if (counter.guest_slots_used !== 50 || counter.guest_count !== 50) {
     throw new Error(`Quota invariant failed: ${JSON.stringify(counter)}`);
   }
-  console.log("G2 concurrency PASS: one allocation won; counter and guest rows both equal 50.");
+  console.log("G6 concurrency PASS: personal-link creation and shared RSVP raced; one won and quota stayed at 50.");
 } finally {
   await sql`delete from public.events where id = ${eventId}`;
   await sql`delete from public.auth_bindings where auth_user_id = ${authUserId}`;

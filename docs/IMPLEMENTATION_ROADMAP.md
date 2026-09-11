@@ -256,6 +256,8 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Gate G6:** Cả hai nguồn khách hoạt động, quota xuyên luồng đúng và không có cách đọc/sửa RSVP người khác bằng đoán ID hoặc nhập số điện thoại.
 
+> Trạng thái 11/09/2026: Gate kỹ thuật G6 đã đạt. Link chung/link cá nhân, token hash, cookie và link sửa bí mật, quota xuyên luồng, deadline, honeypot, rate limit, open metric lọc bot và UI quản lý khách đã triển khai. Migration đã áp dụng lên Supabase; pgTAP G6 gồm 21 assertion và bài kiểm tra hai transaction tranh suất cuối được gắn vào CI. CAPTCHA nhà cung cấp là lớp cấu hình vận hành của G10 khi có site key/secret. Xem `docs/G6_IMPLEMENTATION_REPORT.md`.
+
 ## 11. G7 — Dashboard RSVP, lời chúc và xuất dữ liệu
 
 **Phụ thuộc:** G6. **Chủ trì:** FE/BE.

@@ -28,3 +28,6 @@ enabled = false
 # client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
 # secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
 redirect_uri = ""
+
+[functions.media-worker]
+verify_jwt = true

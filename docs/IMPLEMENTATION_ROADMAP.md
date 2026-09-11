@@ -189,6 +189,8 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Phụ thuộc:** G2 + G3. **Chủ trì:** FE; BE phụ trách media và lưu dữ liệu.
 
+> Trạng thái 11/09/2026: Gate kỹ thuật đã đạt. Editor, autosave revision, quản lý ba draft, private signed upload, media worker WASM và preview responsive đã triển khai; pgTAP đạt 37/37. UAT qua hai tài khoản thật chờ bật Google OAuth. Xem `docs/G4_IMPLEMENTATION_REPORT.md`.
+
 | Issue | Công việc | Đầu ra / nghiệm thu |
 |---|---|---|
 | INV-401 | Tạo/list/xóa nháp với hạn 3 nháp | Tạo nháp không dùng lượt tháng; vượt hạn bị chặn ở server |

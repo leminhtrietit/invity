@@ -43,7 +43,7 @@ export function InvitationRenderer({ content, theme, mode }: { content: Invitati
 
       <header className={styles.hero}>
         {content.cover ? (
-          <Image className={styles.cover} src={content.cover.src} alt={content.cover.alt} fill priority sizes="(max-width: 768px) 100vw, 760px" />
+          <Image className={styles.cover} style={{ objectPosition: `${content.cover.focalX ?? 50}% ${content.cover.focalY ?? 50}%` }} src={content.cover.src} alt={content.cover.alt} fill priority sizes="(max-width: 768px) 100vw, 760px" unoptimized={content.cover.src.startsWith("/api/")} />
         ) : <div className={styles.coverFallback} aria-hidden="true" />}
         <div className={styles.heroShade} />
         <div className={styles.heroTop}><span>Trân trọng báo tin vui</span><span>{formatShortDate(content.startsAt)}</span></div>
@@ -106,7 +106,7 @@ export function InvitationRenderer({ content, theme, mode }: { content: Invitati
       {content.sections.album && content.album.length > 0 && (
         <section className={styles.album}>
           <div className={styles.albumImage}>
-            <Image src={content.album[0].src} alt={content.album[0].alt} fill sizes="(max-width: 768px) 100vw, 760px" />
+            <Image style={{ objectPosition: `${content.album[0].focalX ?? 50}% ${content.album[0].focalY ?? 50}%` }} src={content.album[0].src} alt={content.album[0].alt} fill sizes="(max-width: 768px) 100vw, 760px" unoptimized={content.album[0].src.startsWith("/api/")} />
           </div>
           <div className={styles.albumNote}><span>Our days</span><p>“Thương nhau từ những điều rất nhỏ.”</p></div>
         </section>

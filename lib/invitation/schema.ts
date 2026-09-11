@@ -25,14 +25,32 @@ export const invitationContentSchema = z.object({
     address: z.string().trim().min(1).max(240),
     mapUrl: z.string().url(),
   }),
-  cover: z.object({ src: z.string().min(1), alt: z.string().trim().min(1).max(180) }).optional(),
+  cover: z.object({
+    src: z.string().min(1),
+    alt: z.string().trim().min(1).max(180),
+    mediaAssetId: z.string().uuid().optional(),
+    focalX: z.number().min(0).max(100).optional(),
+    focalY: z.number().min(0).max(100).optional(),
+  }).optional(),
   story: z.object({ eyebrow: z.string().max(60), heading: z.string().max(120), body: z.string().max(1200) }).optional(),
   schedule: z.array(z.object({ time: z.string().regex(/^\d{2}:\d{2}$/), title: z.string().max(100), note: z.string().max(180).optional() })).max(8),
-  album: z.array(z.object({ src: z.string().min(1), alt: z.string().min(1).max(180) })).max(12),
+  album: z.array(z.object({
+    src: z.string().min(1),
+    alt: z.string().min(1).max(180),
+    mediaAssetId: z.string().uuid().optional(),
+    focalX: z.number().min(0).max(100).optional(),
+    focalY: z.number().min(0).max(100).optional(),
+  })).max(12),
   rsvp: z.object({ enabled: z.boolean(), closesAt: z.string().datetime({ offset: true }).optional(), maxCompanions: z.number().int().min(0).max(10) }),
   gift: z.object({ enabled: z.boolean(), message: z.string().max(280) }),
+  music: z.object({ mediaAssetId: z.string().uuid(), src: z.string().min(1), title: z.string().max(120) }).optional(),
   wishes: z.object({ enabled: z.boolean(), samples: z.array(z.object({ author: z.string().max(80), message: z.string().max(360) })).max(6) }),
   sections: z.object({ story: z.boolean(), countdown: z.boolean(), schedule: z.boolean(), album: z.boolean(), rsvp: z.boolean(), gift: z.boolean(), wishes: z.boolean() }),
+  appearance: z.object({
+    accent: hexColor.optional(),
+    displayFont: z.enum(["editorial", "romantic", "modern"]).optional(),
+    bodyFont: z.enum(["humanist", "classic"]).optional(),
+  }).optional(),
 });
 
 export type InvitationTheme = z.infer<typeof invitationThemeSchema>;

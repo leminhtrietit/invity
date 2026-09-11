@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(25);
+select plan(37);
 
 select has_table('public', 'events', 'events table exists');
 select has_table('public', 'event_drafts', 'event drafts table exists');
@@ -170,6 +170,65 @@ select throws_ok(
   'owner cannot mutate another owner event'
 );
 
+select has_function('public', 'delete_draft_event', array['uuid', 'uuid'], 'draft deletion RPC exists');
+select has_function('public', 'switch_event_template', array['uuid', 'text', 'integer', 'uuid'], 'template switch RPC exists');
+select has_function('public', 'register_media_upload', array['uuid', 'text', 'text', 'text', 'bigint', 'uuid'], 'media registration RPC exists');
+select has_function('public', 'claim_media_jobs', array['text', 'integer', 'integer'], 'media worker claim RPC exists');
+select ok(
+  not has_function_privilege('anon', 'public.delete_draft_event(uuid,uuid)', 'EXECUTE')
+  and has_function_privilege('authenticated', 'public.delete_draft_event(uuid,uuid)', 'EXECUTE'),
+  'only authenticated owners can call draft deletion RPC'
+);
+select is(
+  public.switch_event_template(
+    '40000000-0000-0000-0000-000000000003', 'garden-vow', 1,
+    '30000000-0000-0000-0000-000000000010'
+  ),
+  2,
+  'switching template increments draft revision'
+);
+select is(
+  (select template_id from public.events where id = '40000000-0000-0000-0000-000000000003'),
+  'garden-vow',
+  'switching template keeps the event and updates its renderer choice'
+);
+reset role;
+insert into storage.objects (bucket_id, name)
+values (
+  'event-media',
+  '20000000-0000-0000-0000-000000000002/40000000-0000-0000-0000-000000000003/70000000-0000-0000-0000-000000000001.webp'
+);
+set local role authenticated;
+set local "request.jwt.claim.sub" = '10000000-0000-0000-0000-000000000002';
+select is(
+  (select status from public.register_media_upload(
+    '40000000-0000-0000-0000-000000000003', 'cover',
+    '20000000-0000-0000-0000-000000000002/40000000-0000-0000-0000-000000000003/70000000-0000-0000-0000-000000000001.webp',
+    'cover.webp', 1024, '30000000-0000-0000-0000-000000000011'
+  )),
+  'uploaded',
+  'owner can register a scoped media upload'
+);
+reset role;
+select is(
+  (select count(*)::integer from public.jobs where event_id = '40000000-0000-0000-0000-000000000003' and kind = 'media.process'),
+  1,
+  'media registration queues one processing job'
+);
+delete from public.jobs
+where event_id = '40000000-0000-0000-0000-000000000003' and kind = 'media.process';
+set local role authenticated;
+set local "request.jwt.claim.sub" = '10000000-0000-0000-0000-000000000002';
+select lives_ok(
+  $$ select public.delete_draft_event('40000000-0000-0000-0000-000000000003', '30000000-0000-0000-0000-000000000012') $$,
+  'owner can soft-delete a draft'
+);
+select is(
+  (select lifecycle from public.events where id = '40000000-0000-0000-0000-000000000003'),
+  'deleted',
+  'deleted draft no longer counts as an active draft'
+);
+
 reset role;
 set local role anon;
 select throws_ok(
@@ -182,6 +241,12 @@ select ok(
   not has_function_privilege('authenticated', 'public.claim_jobs(text,integer,integer)', 'EXECUTE')
   and has_function_privilege('service_role', 'public.claim_jobs(text,integer,integer)', 'EXECUTE'),
   'only service role can claim jobs'
+);
+select ok(
+  not has_function_privilege('anon', 'public.claim_media_jobs(text,integer,integer)', 'EXECUTE')
+  and not has_function_privilege('authenticated', 'public.claim_media_jobs(text,integer,integer)', 'EXECUTE')
+  and has_function_privilege('service_role', 'public.claim_media_jobs(text,integer,integer)', 'EXECUTE'),
+  'only service role can claim media jobs'
 );
 
 insert into public.jobs (id, kind, max_attempts) values

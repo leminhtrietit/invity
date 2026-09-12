@@ -3,6 +3,7 @@ import test from "node:test";
 import { vowEditorialFixture } from "./fixtures.ts";
 import { invitationContentSchema } from "./schema.ts";
 import { templateCatalog } from "../templates/catalog.ts";
+import { getTemplateFixture } from "../templates/fixtures.ts";
 
 function luminance(hex: string) {
   const channels = hex.slice(1).match(/.{2}/g)?.map((value) => Number.parseInt(value, 16) / 255) ?? [];
@@ -33,4 +34,14 @@ test("all template body text colors meet WCAG AA contrast", () => {
   for (const template of templateCatalog) {
     assert.ok(contrast(template.theme.ink, template.theme.background) >= 4.5, `${template.id} must keep readable body text`);
   }
+});
+
+test("all launch templates have valid category-specific preview content",()=>{
+  const titles=new Set<string>();
+  for(const template of templateCatalog){const fixture=getTemplateFixture(template.id);assert.equal(invitationContentSchema.safeParse(fixture).success,true,template.id);titles.add(fixture.title)}
+  assert.equal(titles.size,templateCatalog.length);
+});
+
+test("launch catalog matches the ten promised product names",()=>{
+  assert.deepEqual(new Set(templateCatalog.map((item)=>item.name)),new Set(["Vow Editorial","Modern Romance","Trầu Cau","The Promise","Birthday Studio","Little Cloud","New Chapter","Class of Us","Warm Gathering","Evening Toast"]));
 });

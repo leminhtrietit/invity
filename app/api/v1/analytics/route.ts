@@ -1,0 +1,6 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+const schema=z.object({eventName:z.enum(["template_viewed","template_selected","draft_created","event_published","invitation_opened","rsvp_submitted","qr_generated"]),eventId:z.uuid().optional(),templateId:z.string().max(80).optional()});
+export async function POST(request:Request){const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)return NextResponse.json({ok:false},{status:422});const cookieHeader=request.headers.get("cookie")??"";const current=cookieHeader.match(/(?:^|;\s*)invity_analytics=([^;]+)/)?.[1];const anonymousKey=current&&/^[a-f0-9]{48}$/.test(current)?current:crypto.randomUUID().replaceAll("-","")+crypto.randomUUID().replaceAll("-","").slice(0,16);const {error}=await (await createSupabaseServerClient()).rpc("track_product_event",{p_event_name:parsed.data.eventName,p_anonymous_key:anonymousKey,p_event_id:parsed.data.eventId??null,p_template_id:parsed.data.templateId??null});const response=NextResponse.json({ok:!error},{status:error?422:200});if(!current)response.cookies.set("invity_analytics",anonymousKey,{httpOnly:true,sameSite:"lax",secure:process.env.NODE_ENV==="production",maxAge:60*60*24*365,path:"/"});return response;}

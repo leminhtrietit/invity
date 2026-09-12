@@ -22,5 +22,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ eve
     return apiError(status, code ?? "PUBLISH_FAILED", message, id);
   }
   const result = Array.isArray(data) ? data[0] : data;
+  if (!result.replayed) await supabase.rpc("track_product_event", { p_event_name: "event_published", p_anonymous_key: null, p_event_id: eventId, p_template_id: null });
   return apiSuccess({ versionId: result.version_id, eventVersion: result.version_number, publicCode: result.public_code, firstPublication: result.first_publication, replayed: result.replayed, publicUrl: `/e/${result.public_code}` }, id);
 }

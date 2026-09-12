@@ -24,7 +24,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <Link className="display text-2xl" href="/">Invite</Link>
         <div className="flex items-center gap-3">
           <span className="hidden text-sm text-[var(--muted)] sm:block">{user.displayName}</span>
-          <LogoutButton />
+          <Link className="text-sm" href="/settings">Cài đặt</Link><LogoutButton />
         </div>
       </header>
       <main className="shell py-14">

@@ -10,7 +10,7 @@ const devices = [
   { id: "desktop", label: "Máy tính", width: 1120 },
 ] as const;
 
-export function TemplatePreview({ content, theme }: { content: InvitationContent; theme: InvitationTheme }) {
+export function TemplatePreview({ content, theme, templateId }: { content: InvitationContent; theme: InvitationTheme; templateId:string }) {
   const [device, setDevice] = useState<(typeof devices)[number]>(devices[0]);
 
   return (
@@ -24,7 +24,7 @@ export function TemplatePreview({ content, theme }: { content: InvitationContent
       </div>
       <div className="preview-canvas">
         <div className="preview-device" style={{ maxWidth: device.width }}>
-          <InvitationRenderer content={content} theme={theme} mode="preview" />
+          <InvitationRenderer content={content} theme={theme} mode="preview" templateId={templateId} />
         </div>
       </div>
     </div>

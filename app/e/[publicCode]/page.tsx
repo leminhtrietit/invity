@@ -26,5 +26,5 @@ export default async function PublicEventPage({ params }: { params: Promise<{ pu
     const { data } = await (await import("@/lib/events/public-event")).createPublicSupabaseClient().rpc("resolve_shared_rsvp_edit", { p_edit_secret: secret });
     if (data?.publicCode === publicCode) initialRsvp = data;
   }
-  return <main><PublicInvitation content={event.content} theme={{ ...baseTheme, ...event.content.appearance }} publicCode={publicCode} giftOptions={giftOptions} guestName={initialRsvp?.name} initialRsvp={initialRsvp} /></main>;
+  return <main><PublicInvitation content={event.content} theme={{ ...baseTheme, ...event.content.appearance }} templateId={event.templateId} publicCode={publicCode} giftOptions={giftOptions} guestName={initialRsvp?.name} initialRsvp={initialRsvp} /></main>;
 }

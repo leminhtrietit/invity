@@ -190,7 +190,7 @@ export function EventEditor({ eventId, initialContent, initialRevision, initialT
         <div className="section-toggles">{Object.entries(content.sections).map(([key, enabled]) => <label key={key}><input checked={enabled} onChange={(event) => update((current) => ({ ...current, sections: { ...current.sections, [key]: event.target.checked } }))} type="checkbox" /><span>{key}</span></label>)}</div>
       </section>
     </main>
-    <aside className={`editor-preview ${mobilePane === "edit" ? "mobile-hidden" : ""}`}><div className="editor-phone"><InvitationRenderer content={content} theme={theme} mode="preview" /></div></aside>
+    <aside className={`editor-preview ${mobilePane === "edit" ? "mobile-hidden" : ""}`}><div className="editor-phone"><InvitationRenderer content={content} theme={theme} mode="preview" templateId={templateId} /></div></aside>
     <nav className="editor-mobile-nav" aria-label="Chế độ soạn thiệp"><button aria-pressed={mobilePane === "edit"} onClick={() => setMobilePane("edit")} type="button">Sửa</button><button aria-pressed={mobilePane === "preview"} onClick={() => setMobilePane("preview")} type="button">Xem thử</button><button className="editor-mobile-cta" disabled={saveState !== "saved" || publishState === "publishing"} onClick={publish} type="button">{lifecycle === "published" ? "Cập nhật" : "Xuất bản"}</button></nav>
   </div>;
 }

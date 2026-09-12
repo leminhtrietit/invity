@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import { PublicHeader } from "@/components/public-header";
+export const metadata:Metadata={title:"Liên hệ hỗ trợ"};
+export default function ContactPage(){return <><PublicHeader/><main className="shell legal-page"><p className="eyebrow">Hỗ trợ</p><h1 className="display">Chúng tôi có thể giúp gì?</h1><section><h2>Kênh liên hệ</h2><p>Gửi email đến <a href="mailto:support@leminhtriet.com">support@leminhtriet.com</a> với mã sự kiện và mô tả vấn đề. Không gửi mật khẩu, link khách cá nhân hoặc số tài khoản đầy đủ.</p><h2>Yêu cầu dữ liệu</h2><p>Với yêu cầu truy cập, chỉnh sửa hoặc xóa dữ liệu, hãy dùng đúng email Google gắn với tài khoản. Chúng tôi sẽ xác minh danh tính trước khi xử lý.</p><h2>Sự cố thiệp public</h2><p>Nếu cần ẩn gấp một thiệp, chủ tiệc có thể đổi trạng thái trong trình soạn. Trường hợp không đăng nhập được, hãy ghi rõ đường dẫn public trong email hỗ trợ.</p></section></main></>}

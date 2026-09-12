@@ -26,7 +26,7 @@ function formatWeekday(value: string) {
   return new Intl.DateTimeFormat("vi-VN", { weekday: "long", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(value));
 }
 
-export function InvitationRenderer({ content, theme, mode, onOpenGift }: { content: InvitationContent; theme: InvitationTheme; mode: InvitationMode; onOpenGift?:()=>void }) {
+export function InvitationRenderer({ content, theme, mode, onOpenGift, templateId="vow-editorial" }: { content: InvitationContent; theme: InvitationTheme; mode: InvitationMode; onOpenGift?:()=>void;templateId?:string }) {
   const themeStyle: ThemeStyle = {
     "--invite-bg": theme.background,
     "--invite-surface": theme.surface,
@@ -38,7 +38,7 @@ export function InvitationRenderer({ content, theme, mode, onOpenGift }: { conte
   const names = content.hosts.map((host) => host.name);
 
   return (
-    <article className={`${styles.invitation} ${styles[theme.displayFont]}`} style={themeStyle} data-mode={mode}>
+    <article className={`${styles.invitation} ${styles[theme.displayFont]}`} style={themeStyle} data-mode={mode} data-template={templateId}>
       {mode === "preview" && <div className={styles.previewFlag}>Bản xem thử · không ghi lượt mở</div>}
 
       <header className={styles.hero}>

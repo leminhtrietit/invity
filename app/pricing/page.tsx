@@ -1,0 +1,8 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { PublicHeader } from "@/components/public-header";
+import { WaitlistForm } from "@/components/waitlist-form";
+import { getCurrentAppUser } from "@/lib/auth/current-user";
+
+export const metadata:Metadata={title:"Gói dịch vụ",description:"Bắt đầu miễn phí với một sự kiện mỗi tháng và tối đa 50 khách mời."};
+export default async function PricingPage(){const signedIn=Boolean(await getCurrentAppUser());return <><PublicHeader/><main className="shell pricing-page"><section className="pricing-heading"><p className="eyebrow">Rõ ràng từ ngày đầu</p><h1 className="display">Tạo ngày vui trước.<br/>Nâng cấp khi bạn cần.</h1><p>Invite đang mở gói Free. Pro và Premium ở trạng thái chờ ra mắt; chưa thu tiền và chưa công bố mức giá.</p></section><section className="pricing-grid"><article className="pricing-card pricing-card-active"><span>Đang mở</span><h2 className="display">Free</h2><strong>0₫</strong><ul><li>1 sự kiện xuất bản mỗi tháng</li><li>Tối đa 3 bản nháp</li><li>50 suất khách cho mỗi sự kiện</li><li>RSVP, lời chúc, CSV và Excel</li><li>Tối đa 2 tài khoản VietQR</li></ul><Link className="button button-primary" href="/templates">Bắt đầu miễn phí</Link></article><article className="pricing-card"><span>Sắp ra mắt</span><h2 className="display">Pro / Premium</h2><strong>Chưa mở bán</strong><ul><li>Nhiều sự kiện và khách mời hơn</li><li>Tùy biến nâng cao</li><li>Tính năng dành cho đội nhóm</li><li>Quyền lợi cuối cùng sẽ được công bố trước khi thu phí</li></ul><WaitlistForm signedIn={signedIn}/></article></section></main></>}

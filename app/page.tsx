@@ -1,36 +1,18 @@
 import Link from "next/link";
 import { PublicHeader } from "@/components/public-header";
+import { templateCatalog } from "@/lib/templates/catalog";
 
 export default function HomePage() {
-  return (
-    <>
-      <PublicHeader />
-      <main className="shell grid min-h-[calc(100vh-80px)] items-center gap-12 py-16 lg:grid-cols-[1.05fr_.95fr]">
-        <section>
-          <p className="eyebrow">Thiệp mời trực tuyến</p>
-          <h1 className="display mt-5 max-w-3xl text-5xl leading-[.98] sm:text-7xl">
-            Một lời mời đẹp, mở đầu một ngày đáng nhớ.
-          </h1>
-          <p className="mt-7 max-w-xl text-lg leading-8 text-[var(--muted)]">
-            Chọn mẫu, kể câu chuyện của bạn và nhận phản hồi từ khách mời — ngay trên điện thoại.
-          </p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Link className="button button-primary" href="/templates">Tạo thiệp miễn phí</Link>
-            <Link className="button button-secondary" href="/templates">Khám phá mẫu thiệp</Link>
-          </div>
-        </section>
-        <section aria-label="Xem trước thiệp" className="relative mx-auto w-full max-w-md">
-          <div className="absolute -inset-8 -z-10 rounded-full bg-[var(--accent-soft)] blur-3xl" />
-          <div className="card overflow-hidden p-3">
-            <div className="aspect-[4/5] rounded-[18px] bg-[linear-gradient(160deg,#331f24,#89525e)] p-8 text-center text-white">
-              <p className="mt-10 text-xs font-bold uppercase tracking-[.35em]">Save the date</p>
-              <p className="display mt-20 text-5xl">Minh &amp; An</p>
-              <div className="mx-auto mt-8 h-px w-16 bg-white/50" />
-              <p className="mt-8 text-sm tracking-[.2em]">20 · 12 · 2026</p>
-            </div>
-          </div>
-        </section>
-      </main>
-    </>
-  );
+  const featured = templateCatalog.slice(0, 3);
+  return <><PublicHeader/><main>
+    <section className="home-hero shell">
+      <div className="home-hero-copy"><p className="eyebrow">Thiệp mời trực tuyến · Made in Vietnam</p><h1 className="display">Ngày đáng nhớ<br/><em>bắt đầu từ đây.</em></h1><p>Tạo thiệp có câu chuyện riêng, gửi từng vị khách và theo dõi RSVP trong một nơi—đẹp trên từng màn hình điện thoại.</p><div><Link className="button button-primary" href="/templates">Tạo thiệp miễn phí</Link><Link className="button button-secondary" href="#how-it-works">Xem cách hoạt động</Link></div><small>Không cần thẻ thanh toán · 1 sự kiện/tháng · tối đa 50 khách</small></div>
+      <div className="home-hero-art" aria-label="Bản xem trước thiệp cưới"><div className="home-phone"><span>20 · 12 · 2026</span><p>save the date</p><h2 className="display">Minh<br/><i>&amp;</i><br/>An</h2><small>Chạm để mở thiệp</small></div><div className="home-floating-card"><span>RSVP</span><strong>Danh sách khách rõ ràng</strong><small>Đồng ý · từ chối · người đi cùng</small></div></div>
+    </section>
+    <section className="home-manifesto"><div className="shell"><p className="eyebrow">Thiết kế có chủ đích</p><h2 className="display">Không chỉ thay màu.<br/>Mỗi mẫu có một nhịp kể riêng.</h2><p>Từ đám cưới, lễ đính hôn đến thôi nôi và tốt nghiệp, bố cục được thiết kế mobile first để lời mời luôn trọn vẹn trong trình duyệt Zalo, Messenger, Safari và Chrome.</p></div></section>
+    <section className="shell home-templates"><div className="home-section-heading"><div><p className="eyebrow">Bộ sưu tập</p><h2 className="display">Thiết kế cho câu chuyện của bạn</h2></div><Link href="/templates">Xem cả 10 mẫu →</Link></div><div className="home-template-grid">{featured.map((template,index)=><Link href={`/templates/${template.id}`} className="home-template" key={template.id}><div style={{background:`linear-gradient(155deg,${template.theme.ink},${template.theme.accent})`,color:template.theme.surface}}><span>0{index+1}</span><strong className="display">{template.motif}</strong><small>{template.name}</small></div><p>{template.categoryLabel}</p><h3 className="display">{template.name}</h3></Link>)}</div></section>
+    <section className="shell home-process" id="how-it-works"><div><p className="eyebrow">Ba bước</p><h2 className="display">Từ ý tưởng đến lời hồi đáp.</h2></div><ol><li><span>01</span><div><strong>Chọn phong cách</strong><p>Lọc theo dịp, xem thử mobile và desktop trước khi bắt đầu.</p></div></li><li><span>02</span><div><strong>Kể câu chuyện</strong><p>Thêm ảnh, thời gian, lịch trình, bản đồ, nhạc và lời nhắn.</p></div></li><li><span>03</span><div><strong>Gửi và theo dõi</strong><p>Chia sẻ link chung hoặc cá nhân hóa, nhận RSVP, lời chúc và xuất Excel.</p></div></li></ol></section>
+    <section className="home-feature-band"><div className="shell"><article><span>✦</span><h3 className="display">Mở thiệp có cảm xúc</h3><p>Phong bì, nhạc nền sau tương tác và chuyển động tôn trọng reduced motion.</p></article><article><span>↗</span><h3 className="display">Chia sẻ đẹp</h3><p>Open Graph theo từng sự kiện cho Zalo, Messenger và Telegram.</p></article><article><span>✓</span><h3 className="display">Quản lý nhẹ nhàng</h3><p>RSVP, lời chúc, VietQR và export đều gắn đúng sự kiện.</p></article></div></section>
+    <section className="shell home-final"><p className="eyebrow">Gói Free đang mở</p><h2 className="display">Lời mời đầu tiên<br/>đang chờ bạn viết.</h2><p>Một sự kiện mỗi tháng, tối đa 50 suất khách. Chưa cần thanh toán.</p><div><Link className="button button-primary" href="/templates">Chọn mẫu thiệp</Link><Link className="button button-secondary" href="/pricing">Xem gói dịch vụ</Link></div></section>
+  </main><footer className="site-footer shell"><Link className="display" href="/">Invite</Link><div><Link href="/privacy">Quyền riêng tư</Link><Link href="/contact">Hỗ trợ</Link><Link href="/pricing">Gói dịch vụ</Link></div><small>© 2026 Invite</small></footer></>;
 }

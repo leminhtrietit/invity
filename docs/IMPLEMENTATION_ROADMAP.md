@@ -319,6 +319,8 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Gate G9:** Không còn màn placeholder trong luồng đã cam kết; đủ 10 mẫu đạt visual QA; admin không mở dữ liệu cho người dùng thường.
 
+> Trạng thái 12/09/2026: G9 đã triển khai INV-901–906. Landing và gallery dùng 10 mẫu đúng danh mục roadmap; mỗi mẫu có nội dung preview, bố cục và OG riêng. Gói Free hiển thị quota thật, Pro/Premium chỉ là waitlist có consent riêng. Admin dùng role database để quản lý template, report, event, user và retry job. Trang settings khóa truy cập, ẩn thiệp và thu hồi token ngay khi yêu cầu xóa. Funnel chỉ lưu event name, UUID hợp lệ và anonymous hash. Xem `docs/G9_IMPLEMENTATION_REPORT.md`.
+
 ## 14. G10 — Kiểm thử tích hợp và củng cố vận hành
 
 **Phụ thuộc:** G5–G9 hoàn thành; test từng module phải chạy trước đó. **Chủ trì:** QA/TL/OPS.

@@ -18,6 +18,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pub
   });
   if (error) return rsvpError(rsvpDatabaseError(error.message), id);
   const result = Array.isArray(data) ? data[0] : data;
+  if(!result.replayed) await supabase.rpc("track_product_event",{p_event_name:"rsvp_submitted",p_anonymous_key:requestFingerprint(request),p_event_id:null,p_template_id:null});
   const response = apiSuccess({ accepted: true, allocationNumber: result.allocation_number, editPath: `/r/${result.edit_secret}`, replayed: result.replayed }, id, { status: result.replayed ? 200 : 201 });
   response.cookies.set(`invity_rsvp_${publicCode}`, result.edit_secret, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 180 });
   return response;

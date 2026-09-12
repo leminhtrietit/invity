@@ -26,5 +26,6 @@ export async function POST(request: Request) {
     return apiError(code === "UNAUTHENTICATED" ? 401 : 400, code ?? "INTERNAL_ERROR", "Không thể tạo bản nháp.", id);
   }
   const created = Array.isArray(data) ? data[0] : data;
+  if (!created.replayed) await supabase.rpc("track_product_event", { p_event_name: "draft_created", p_anonymous_key: null, p_event_id: created.event_id, p_template_id: parsed.data.templateId });
   return apiSuccess({ eventId: created.event_id, revision: created.revision, replayed: created.replayed }, id, { status: 201, headers: { Location: `/events/${created.event_id}/edit` } });
 }

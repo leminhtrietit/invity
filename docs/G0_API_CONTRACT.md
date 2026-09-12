@@ -65,4 +65,14 @@ Mọi write có side effect nhận `Idempotency-Key` UUID trong header; server l
 - DTO dùng `camelCase`, time ISO-8601 có offset, tiền là integer VND, số tài khoản/điện thoại là string.
 - Không đổi nghĩa/xóa field public của version đang hỗ trợ; thêm field optional trước. `eventVersion` có trong response public/preview để trace cache.
 - `requestId` xuất hiện trong response/log; log tuyệt đối không có authorization header, raw token, phone, email hoặc account number.
-- Route mutations ghi `audit_logs` gồm actor type, actor ID đã redacted khi cần, action, event ID, request ID và thời điểm.
+  - Route mutations ghi `audit_logs` gồm actor type, actor ID đã redacted khi cần, action, event ID, request ID và thời điểm.
+
+## Endpoint hoàn thiện sản phẩm
+
+| Method & route | Request chính | Response/chú ý |
+|---|---|---|
+| `POST /waitlist` | `planInterest`, `consent: true` | Authenticated; một record/user, lần sau cập nhật lựa chọn; chưa tạo giao dịch hay giá bán. |
+| `POST /analytics` | `eventName`, `eventId?`, `templateId?` | Allowlist funnel; anonymous cookie HttpOnly được băm tại database; không nhận properties tự do hoặc PII. |
+| `POST /public/events/:publicCode/reports` | `reason` | Chỉ event published; không yêu cầu contact và không public report data. |
+| `POST /account/deletion` | `confirmation` | Ẩn event, thu hồi invitation token, khóa app user, tạo deletion job và global sign-out. |
+| `POST /admin` | `action`, `targetId`, `value` | Role admin kiểm tra trong database; template/report/event/user/job action có audit. |

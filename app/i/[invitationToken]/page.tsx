@@ -13,5 +13,5 @@ export default async function PersonalInvitationPage({ params }: { params: Promi
   if (!personal?.publicCode) notFound();
   const [event,giftOptions] = await Promise.all([loadPublicEvent(personal.publicCode),loadPublicGiftOptions(personal.publicCode)]); if (!event) notFound();
   const baseTheme = getTemplate(event.templateId)?.theme; if (!baseTheme) notFound();
-  return <main><PublicInvitation content={event.content} theme={{ ...baseTheme, ...event.content.appearance }} publicCode={event.publicCode} giftOptions={giftOptions} invitationToken={invitationToken} guestName={personal.guestName} initialRsvp={personal.rsvp} /></main>;
+  return <main><PublicInvitation content={event.content} theme={{ ...baseTheme, ...event.content.appearance }} templateId={event.templateId} publicCode={event.publicCode} giftOptions={giftOptions} invitationToken={invitationToken} guestName={personal.guestName} initialRsvp={personal.rsvp} /></main>;
 }

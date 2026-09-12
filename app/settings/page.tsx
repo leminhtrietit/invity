@@ -1,0 +1,8 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { AccountDeletionForm } from "@/components/account-deletion-form";
+import { getCurrentAppUser } from "@/lib/auth/current-user";
+
+export const metadata:Metadata={title:"Cài đặt tài khoản",robots:{index:false,follow:false}};
+export default async function SettingsPage(){const user=await getCurrentAppUser();if(!user)redirect("/login?returnTo=%2Fsettings");return <><header className="shell flex min-h-20 items-center justify-between"><Link className="display text-2xl" href="/dashboard">Invite</Link><Link href="/dashboard">← Dashboard</Link></header><main className="shell settings-page"><section><p className="eyebrow">Tài khoản</p><h1 className="display">Cài đặt và dữ liệu</h1><div className="profile-card"><span aria-hidden="true">{user.displayName.slice(0,1).toUpperCase()}</span><div><strong>{user.displayName}</strong><span>{user.email}</span><small>Đăng nhập qua Google</small></div></div></section><section className="settings-policy"><h2 className="display">Quyền riêng tư</h2><p>Xem dữ liệu chúng tôi lưu, thời hạn lưu trữ và cách gửi yêu cầu hỗ trợ.</p><div><Link href="/privacy">Chính sách quyền riêng tư →</Link><Link href="/contact">Liên hệ hỗ trợ →</Link></div></section><section className="danger-zone"><p className="eyebrow">Vùng nguy hiểm</p><h2 className="display">Xóa tài khoản</h2><p>Khi xác nhận, mọi thiệp public bị ẩn và toàn bộ link khách bị thu hồi ngay. Hệ thống đăng xuất tất cả phiên và đưa dữ liệu vào hàng đợi xóa.</p><AccountDeletionForm/></section></main></>}

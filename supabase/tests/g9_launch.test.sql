@@ -35,8 +35,10 @@ select is((public.admin_dashboard()#>>'{counts,users}')::integer,2,'admin can re
 select ok(public.admin_action('template.enabled','vow-editorial','false','99000000-0000-0000-0000-000000000004'),'admin can disable template for new events');
 select ok(not (select enabled_for_new from public.templates where id='vow-editorial'),'disabled template state is persisted');
 select ok(public.admin_action('event.lifecycle','49000000-0000-0000-0000-000000000001','hidden','99000000-0000-0000-0000-000000000005'),'admin can hide an event');
+reset role;
 select is((select lifecycle from public.events where id='49000000-0000-0000-0000-000000000001'),'hidden','event is hidden immediately');
 
+set local role authenticated;
 set local "request.jwt.claim.sub"='19000000-0000-0000-0000-000000000002';
 select ok(public.request_account_deletion('XOA TAI KHOAN','99000000-0000-0000-0000-000000000006'),'owner can request account deletion');
 reset role;

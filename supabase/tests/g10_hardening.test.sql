@@ -20,12 +20,12 @@ insert into public.auth_bindings(app_user_id,auth_user_id,provider,provider_subj
 insert into public.events(id,owner_app_user_id,template_id,category,lifecycle,public_code) values('4a000000-0000-0000-0000-000000000001','2a000000-0000-0000-0000-000000000001','vow-editorial','wedding','published','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
 
 set local role anon;
-select lives_ok($$do $block$ begin for i in 1..5 loop perform public.submit_abuse_report('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb','Nội dung cần kiểm tra','report-fingerprint-key-1234567890');end loop;end $block$$$,'first five reports in an hour are accepted');
+select lives_ok($test$do $block$ begin for i in 1..5 loop perform public.submit_abuse_report('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb','Nội dung cần kiểm tra','report-fingerprint-key-1234567890');end loop;end $block$;$test$,'first five reports in an hour are accepted');
 reset role;
 select is((select count(*)::integer from public.abuse_reports where event_id='4a000000-0000-0000-0000-000000000001'),5,'accepted reports are recorded');
 set local role anon;
 select throws_ok($$select public.submit_abuse_report('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb','Báo cáo thứ sáu','report-fingerprint-key-1234567890')$$,'P0001','RATE_LIMITED','sixth report is rate limited');
-select lives_ok($$do $block$ begin for i in 1..120 loop perform public.track_product_event('template_viewed','analytics-fingerprint-key-1234567890',null,'vow-editorial');end loop;end $block$$$,'analytics accepts the bounded ten-minute volume');
+select lives_ok($test$do $block$ begin for i in 1..120 loop perform public.track_product_event('template_viewed','analytics-fingerprint-key-1234567890',null,'vow-editorial');end loop;end $block$;$test$,'analytics accepts the bounded ten-minute volume');
 reset role;
 select is((select count(*)::integer from public.product_events where event_name='template_viewed'),120,'analytics stores only accepted events');
 set local role anon;

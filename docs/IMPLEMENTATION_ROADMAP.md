@@ -341,6 +341,8 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Gate G10:** Báo cáo nghiệm thu có link bằng chứng; lỗi P2 còn lại phải có owner, tác động và lịch sửa được PO chấp nhận. Không còn vấn đề dữ liệu/quyền truy cập chưa xử lý.
 
+> Trạng thái 13/09/2026: hardening kỹ thuật G10 đã triển khai lên production; CI, migration/pgTAP, concurrency, security headers, cross-site guard và smoke test đều đạt. Gate G10 chưa đóng: LCP Lighthouse mobile trung vị hiện là 4.228 ms; Google OAuth production, UAT thiết bị/webview thật, lịch maintenance và restore drill DB + Storage vẫn cần hoàn tất. Xem `docs/G10_IMPLEMENTATION_REPORT.md`.
+
 ## 15. G11 — Beta và mở công khai
 
 **Phụ thuộc:** G10. **Chủ trì:** PO/OPS, cả đội hỗ trợ.

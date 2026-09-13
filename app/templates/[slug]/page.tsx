@@ -40,7 +40,7 @@ export default async function TemplateDetailPage({ params }: { params: Promise<{
             <span>Miễn phí · chỉnh sửa sau khi đăng nhập</span>
           </div>
         </section>
-        <TemplatePreview content={getTemplateFixture(template.id)} theme={template.theme} templateId={template.id} />
+        <TemplatePreview content={getTemplateFixture(template.id)} theme={template.theme} templateId={template.id}/>
       </main>
     </>
   );

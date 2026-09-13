@@ -17,7 +17,7 @@ export async function updateSession(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getClaims();
-  const isProtected = request.nextUrl.pathname.startsWith("/dashboard");
+  const isProtected = ["/dashboard", "/events", "/settings", "/admin"].some((path) => request.nextUrl.pathname.startsWith(path));
 
   if (isProtected && !data?.claims) {
     const loginUrl = request.nextUrl.clone();

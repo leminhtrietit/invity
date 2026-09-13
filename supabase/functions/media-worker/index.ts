@@ -18,6 +18,14 @@ type MediaAsset = {
   storage_key: string;
 };
 
+async function removeAssets(assets: Array<MediaAsset & { variants?: Record<string, string> }>) {
+  const paths = [...new Set(assets.flatMap((asset) => [asset.storage_key, ...Object.values(asset.variants ?? {})]))];
+  if (paths.length) {
+    const { error } = await supabase.storage.from("event-media").remove(paths);
+    if (error) throw new Error("MEDIA_CLEANUP_FAILED");
+  }
+}
+
 function isMp3(bytes: Uint8Array) {
   return (bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33)
     || (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0);
@@ -74,20 +82,46 @@ async function processImage(asset: MediaAsset, bytes: Uint8Array) {
 }
 
 Deno.serve(async (request) => {
-  const token = request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return Response.json({ error: "UNAUTHENTICATED" }, { status: 401 });
-  const { data: authData, error: authError } = await supabase.auth.getUser(token);
-  if (authError || !authData.user) return Response.json({ error: "UNAUTHENTICATED" }, { status: 401 });
+  const workerSecret = Deno.env.get("MEDIA_WORKER_SECRET");
+  const maintenanceMode = Boolean(workerSecret && request.headers.get("X-Worker-Secret") === workerSecret);
+  let authUserId: string | undefined;
+  if (!maintenanceMode) {
+    const token = request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
+    if (!token) return Response.json({ error: "UNAUTHENTICATED" }, { status: 401 });
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !authData.user) return Response.json({ error: "UNAUTHENTICATED" }, { status: 401 });
+    authUserId = authData.user.id;
+  }
   const workerId = `edge-${crypto.randomUUID()}`;
-  const { data: jobs, error: claimError } = await supabase.rpc("claim_media_jobs", { p_worker_id: workerId, p_limit: 3, p_lease_seconds: 300 });
+  const { data: jobs, error: claimError } = maintenanceMode
+    ? await supabase.rpc("claim_media_jobs", { p_worker_id: workerId, p_limit: 3, p_lease_seconds: 300 })
+    : await supabase.rpc("claim_user_media_jobs", { p_auth_user_id: authUserId, p_worker_id: workerId, p_limit: 3, p_lease_seconds: 300 });
   if (claimError) return Response.json({ error: "CLAIM_FAILED" }, { status: 500 });
 
   const results = [];
   for (const job of jobs ?? []) {
     try {
+      if (job.kind === "account.delete") {
+        const appUserId = job.payload?.appUserId;
+        const { data: assets, error: assetsError } = await supabase.from("media_assets").select("id,event_id,owner_app_user_id,kind,storage_key,variants").eq("owner_app_user_id", appUserId);
+        if (assetsError || !appUserId) throw new Error("ACCOUNT_CLEANUP_LOOKUP_FAILED");
+        await removeAssets((assets ?? []) as Array<MediaAsset & { variants?: Record<string, string> }>);
+        const { error: purgeError } = await supabase.rpc("purge_account_data", { p_app_user_id: appUserId, p_job_id: job.id, p_worker_id: workerId });
+        if (purgeError) throw new Error("ACCOUNT_PURGE_FAILED");
+        results.push({ jobId: job.id, status: "succeeded" });
+        continue;
+      }
       const mediaAssetId = job.payload?.mediaAssetId;
-      const { data: asset, error: assetError } = await supabase.from("media_assets").select("id,event_id,owner_app_user_id,kind,storage_key").eq("id", mediaAssetId).single<MediaAsset>();
+      const { data: asset, error: assetError } = await supabase.from("media_assets").select("id,event_id,owner_app_user_id,kind,storage_key,variants").eq("id", mediaAssetId).single<MediaAsset & { variants?: Record<string, string> }>();
       if (assetError || !asset) throw new Error("MEDIA_ASSET_NOT_FOUND");
+      if (job.kind === "media.cleanup") {
+        await removeAssets([asset]);
+        const { error: deleteError } = await supabase.from("media_assets").delete().eq("id", asset.id);
+        if (deleteError) throw new Error("MEDIA_CLEANUP_DELETE_FAILED");
+        await supabase.rpc("finish_job", { p_job_id: job.id, p_worker_id: workerId, p_succeeded: true });
+        results.push({ jobId: job.id, status: "succeeded" });
+        continue;
+      }
       await supabase.from("media_assets").update({ status: "processing", failure_code: null }).eq("id", asset.id);
       const { data: file, error: downloadError } = await supabase.storage.from("event-media").download(asset.storage_key);
       if (downloadError || !file) throw new Error("MEDIA_DOWNLOAD_FAILED");

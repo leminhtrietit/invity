@@ -30,4 +30,4 @@ enabled = false
 redirect_uri = ""
 
 [functions.media-worker]
-verify_jwt = true
+verify_jwt = false

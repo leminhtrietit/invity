@@ -8,7 +8,7 @@ Tài liệu chuyển các quyết định sản phẩm đã chốt thành các g
 
 | Hạng mục | Quyết định v1 |
 |---|---|
-| Ra mắt | Mở công khai; chủ tiệc đăng nhập qua tài khoản LeMinhTriet (Google tại IdP tập trung) |
+| Ra mắt | Mở công khai; chủ tiệc đăng nhập bằng email/password Invity hoặc tài khoản LeMinhTriet |
 | Khách | Không cần tài khoản để xem thiệp hoặc RSVP |
 | Stack | Next.js App Router, TypeScript, Supabase Auth/PostgreSQL/Storage, Vercel |
 | Thiết kế | Editorial cao cấp, mobile-first, tiếng Việt |
@@ -131,12 +131,12 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 |---|---|---|
 | INV-101 | Khởi tạo Next.js App Router + TypeScript, Tailwind, form/validation, cấu trúc module | Cài từ lockfile; build/lint/typecheck chạy trên máy mới |
 | INV-102 | Tách local, staging và production; cấu hình Vercel/Supabase | Preview không trỏ DB production; có `.env.example` không chứa secret |
-| INV-103 | OIDC LeMinhTriet qua Supabase, callback và session SSR | Login/logout hoạt động; từ chối return URL ngoài ứng dụng; chỉ bật provider được tin cậy |
+| INV-103 | Email/password và OIDC LeMinhTriet qua Supabase, callback và session SSR | Login/logout hoạt động; từ chối return URL ngoài ứng dụng; chỉ bật provider được tin cậy |
 | INV-104 | App user ID ổn định và auth binding | Login lại không tạo user mới; event sẽ sở hữu bằng app user ID, không bằng email |
 | INV-105 | App shell, protected routes và error boundaries | Dashboard yêu cầu login; thư viện mẫu và thiệp khách không yêu cầu |
 | INV-106 | CI và deploy staging | Mỗi PR chạy kiểm tra; migration kiểm tra trên DB thử; không tự migrate production |
 
-**Chi tiết auth:** Invity chỉ lấy email đã xác minh, tên và avatar từ OIDC; không xin Gmail/Drive/Contacts. Google được xử lý tại IdP LeMinhTriet. Webview bị chặn được hướng dẫn mở trình duyệt hệ thống và giữ lựa chọn mẫu.
+**Chi tiết auth:** Invity cho phép tài khoản email/password đã được cấp và OIDC LeMinhTriet. OIDC chỉ lấy email đã xác minh, tên và avatar; không xin Gmail/Drive/Contacts. Google được xử lý tại IdP LeMinhTriet.
 
 **Demo:** Chọn mẫu → LeMinhTriet OIDC → Google/consent tại IdP → dashboard → logout. Thử callback lỗi và hết session.
 

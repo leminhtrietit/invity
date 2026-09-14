@@ -31,7 +31,7 @@
 - Callback đổi code lấy session, ghi lỗi đã làm sạch và gọi `ensure_current_app_user`.
 - Migration `20260914100000_g12_central_oidc.sql` thêm provider/binding OIDC.
 - Migration `20260914110000_g12_oidc_binding_fix.sql` xử lý đúng identity subject từ `auth.identities`, yêu cầu email đã xác minh và duy trì uniqueness theo `(issuer, subject)`.
-- Luồng legacy Google vẫn được migration hiểu để không phá dữ liệu cũ; giao diện production chỉ đưa người dùng qua LeMinhTriet.
+- Luồng legacy Google vẫn được migration hiểu để không phá dữ liệu cũ; giao diện production cung cấp email/password và biểu tượng đăng nhập LeMinhTriet.
 
 ## Kiểm thử đã đạt
 

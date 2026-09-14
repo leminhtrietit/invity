@@ -1,6 +1,6 @@
 # Invite
 
-Nền tảng thiệp mời trực tuyến mobile-first. Ứng dụng dùng Supabase, đăng nhập qua OIDC tập trung LeMinhTriet, identity binding ổn định, app shell và CI.
+Nền tảng thiệp mời trực tuyến mobile-first. Ứng dụng dùng Supabase, hỗ trợ email/password và OIDC tập trung LeMinhTriet, identity binding ổn định, app shell và CI.
 
 ## Chạy local
 

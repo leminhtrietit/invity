@@ -5,6 +5,26 @@ import { getPublicEnv } from "@/lib/env";
 import { safeReturnTo } from "@/lib/auth/return-to";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+export async function signInWithPassword(formData: FormData) {
+  const returnTo = safeReturnTo(formData.get("returnTo")?.toString());
+  const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
+  const password = formData.get("password")?.toString() ?? "";
+  if (!email || email.length > 254 || password.length < 6 || password.length > 1024) {
+    redirect(`/login?error=credentials&returnTo=${encodeURIComponent(returnTo)}`);
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) redirect(`/login?error=credentials&returnTo=${encodeURIComponent(returnTo)}`);
+
+  const { error: bindingError } = await supabase.rpc("ensure_current_app_user");
+  if (bindingError) {
+    await supabase.auth.signOut();
+    redirect(`/login?error=profile_setup&returnTo=${encodeURIComponent(returnTo)}`);
+  }
+  redirect(returnTo);
+}
+
 export async function signInWithLeMinhTriet(formData: FormData) {
   const returnTo = safeReturnTo(formData.get("returnTo")?.toString());
   const supabase = await createSupabaseServerClient();

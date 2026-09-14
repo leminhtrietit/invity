@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { safeReturnTo } from "@/lib/auth/return-to";
 import { getCurrentAppUser } from "@/lib/auth/current-user";
-import { signInWithLeMinhTriet } from "./actions";
+import { signInWithLeMinhTriet, signInWithPassword } from "./actions";
 
 export const metadata: Metadata = { title: "Đăng nhập" };
 
@@ -13,19 +13,27 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   if (await getCurrentAppUser()) redirect(returnTo);
 
   return (
-    <main className="shell grid min-h-screen place-items-center py-10">
-      <section className="card w-full max-w-md p-7 sm:p-10" aria-labelledby="login-title">
-        <Link className="display text-2xl" href="/">Invite</Link>
-        <p className="eyebrow mt-12">Dành cho chủ tiệc</p>
-        <h1 className="display mt-3 text-4xl" id="login-title">Đăng nhập để lưu thiệp</h1>
-        <p className="mt-4 leading-7 text-[var(--muted)]">Invite dùng tài khoản LeMinhTriet để lấy tên, email và ảnh đại diện của bạn.</p>
-        {params.error && <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm text-red-800" role="alert">Đăng nhập chưa hoàn tất. Vui lòng thử lại hoặc mở trang bằng Safari/Chrome.</p>}
-        <form action={signInWithLeMinhTriet} className="mt-7">
+    <main className="login-page">
+      <section className="login-card" aria-labelledby="login-title">
+        <Link className="login-brand display" href="/">Invite</Link>
+        <h1 className="display" id="login-title">Đăng nhập</h1>
+        {params.error && <p className="login-error" role="alert">Thông tin đăng nhập không hợp lệ.</p>}
+        <form action={signInWithPassword} className="login-form">
           <input name="returnTo" type="hidden" value={returnTo} />
-          <button className="button button-primary w-full" type="submit">Tiếp tục với LeMinhTriet</button>
+          <label>
+            <span>Email</span>
+            <input autoComplete="email" inputMode="email" name="email" placeholder="you@example.com" required type="email" />
+          </label>
+          <label>
+            <span>Mật khẩu</span>
+            <input autoComplete="current-password" minLength={6} name="password" placeholder="••••••••" required type="password" />
+          </label>
+          <button className="login-submit" type="submit">Đăng nhập</button>
         </form>
-        <p className="mt-5 text-sm leading-6 text-[var(--muted)]">Nếu đang mở trong Zalo hoặc Messenger và không thể đăng nhập, hãy dùng menu của ứng dụng để mở trang trong Safari hoặc Chrome.</p>
-        <p className="mt-8 text-xs leading-5 text-[var(--muted)]">Khi tiếp tục, bạn đồng ý với điều khoản và chính sách riêng tư của Invite.</p>
+        <form action={signInWithLeMinhTriet} className="login-provider">
+          <input name="returnTo" type="hidden" value={returnTo} />
+          <button aria-label="Đăng nhập bằng leminhtriet.com" title="leminhtriet.com" type="submit"><span aria-hidden="true">L</span></button>
+        </form>
       </section>
     </main>
   );

@@ -311,7 +311,7 @@ Không yêu cầu Invity cấu hình Google Client ID/Secret. Credential Google 
 
 ## 16. Ngoài phạm vi phiên bản đầu
 
-- Đăng nhập email/password do Invity tự quản lý.
+- Tạo tài khoản email/password công khai; Invity hiện chỉ cho phép đăng nhập tài khoản đã được cấp.
 - Quyền Gmail, Drive, Contacts hoặc API Google khác.
 - Đồng bộ role quản trị sản phẩm qua token Auth.
 - SCIM, tổ chức/doanh nghiệp, SAML, MFA bắt buộc cho toàn bộ end user và social provider ngoài Google.

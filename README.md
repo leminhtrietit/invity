@@ -1,17 +1,17 @@
 # Invite
 
-Nền tảng thiệp mời trực tuyến mobile-first. G1 thiết lập Next.js, Supabase Google Auth, identity binding, app shell và CI.
+Nền tảng thiệp mời trực tuyến mobile-first. Ứng dụng dùng Supabase, đăng nhập qua OIDC tập trung LeMinhTriet, identity binding ổn định, app shell và CI.
 
 ## Chạy local
 
 Yêu cầu Node.js 22 và pnpm 11.
 
 1. Sao chép `.env.example` thành `.env.local` và điền Supabase URL/publishable key.
-2. Điền `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` và `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET` trong môi trường Supabase CLI.
+2. Cấu hình provider OIDC `custom:leminhtriet` trong Supabase Auth local hoặc dùng project phát triển đã được cấp client riêng.
 3. Chạy `supabase start`, sau đó `supabase db reset`.
 4. Chạy `pnpm install` và `pnpm dev`.
 
-Google Cloud và Supabase phải cho phép callback `http://localhost:3000/auth/callback` ở local và callback HTTPS của domain staging/production tương ứng.
+OIDC provider và Supabase Auth phải allowlist chính xác callback của từng môi trường. Production hiện dùng callback Supabase `https://unauvoujwjomloveveij.supabase.co/auth/v1/callback`.
 
 ## Kiểm tra
 

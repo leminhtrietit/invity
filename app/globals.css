@@ -68,14 +68,25 @@ button { color: inherit; }
 .template-detail-actions { align-items: flex-start; display: flex; flex-direction: column; gap: 10px; }
 .template-detail-actions span { color: var(--muted); font-size: .7rem; }
 .preview-workbench { background: #dad8d3; border-top: 1px solid #cfccc5; min-height: 100vh; }
+.preview-deferred { align-content:center; color:#6c665d; display:grid; gap:12px; min-height:72svh; padding:40px 24px; text-align:center; }
+.preview-deferred>span { color:var(--accent); font-size:2rem; }
+.preview-deferred>strong { color:var(--ink); font-size:clamp(2rem,8vw,4rem); font-weight:400; }
+.preview-deferred>small { font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
 .preview-toolbar { align-items: center; background: rgb(247 244 239 / 88%); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); display: flex; font-size: .72rem; font-weight: 700; justify-content: space-between; min-height: 60px; padding: 8px max(16px, calc((100vw - 1180px)/2)); position: sticky; top: 0; z-index: 40; }
 .preview-toolbar > div:first-child { align-items: center; display: flex; gap: 8px; }
 .status-dot { background: #4f8b61; border-radius: 50%; height: 7px; width: 7px; }
 .preview-tabs { background: #e8e4dd; border-radius: 999px; display: flex; padding: 3px; }
-.preview-tabs button { background: transparent; border: 0; border-radius: 999px; cursor: pointer; font-size: .7rem; min-height: 34px; padding-inline: 14px; }
-.preview-tabs button[aria-pressed="true"] { background: white; box-shadow: 0 2px 9px rgb(30 25 20 / 9%); }
+.preview-tabs label { align-items: center; background: transparent; border-radius: 999px; cursor: pointer; display: flex; font-size: .7rem; min-height: 34px; padding-inline: 14px; }
+.preview-device-radio { height: 1px; opacity: 0; pointer-events: none; position: absolute; width: 1px; }
+.preview-workbench:has(#preview-mobile:checked) label[for="preview-mobile"],.preview-workbench:has(#preview-tablet:checked) label[for="preview-tablet"],.preview-workbench:has(#preview-desktop:checked) label[for="preview-desktop"] { background: white; box-shadow: 0 2px 9px rgb(30 25 20 / 9%); }
+.preview-workbench:has(#preview-mobile:focus-visible) label[for="preview-mobile"],.preview-workbench:has(#preview-tablet:focus-visible) label[for="preview-tablet"],.preview-workbench:has(#preview-desktop:focus-visible) label[for="preview-desktop"] { outline: 3px solid rgb(117 61 70 / 35%); outline-offset: 2px; }
 .preview-canvas { display: flex; justify-content: center; padding: 28px 12px 90px; }
-.preview-device { box-shadow: 0 30px 90px rgb(28 24 20 / 18%); transition: max-width 280ms ease; width: 100%; }
+.preview-device { box-shadow: 0 30px 90px rgb(28 24 20 / 18%); max-width: 390px; transition: max-width 280ms ease; width: 100%; }
+.preview-workbench:has(#preview-tablet:checked) .preview-device { max-width: 768px; }
+.preview-workbench:has(#preview-desktop:checked) .preview-device { max-width: 1120px; }
+.preview-width span { display: none; }
+.preview-width span:first-child,.preview-workbench:has(#preview-tablet:checked) .preview-width span:nth-child(2),.preview-workbench:has(#preview-desktop:checked) .preview-width span:nth-child(3) { display: inline; }
+.preview-workbench:has(#preview-tablet:checked) .preview-width span:first-child,.preview-workbench:has(#preview-desktop:checked) .preview-width span:first-child { display: none; }
 
 .design-system-page h2 { font-family: Georgia, serif; font-size: 1.65rem; font-weight: 500; margin: 0 0 22px; }
 .design-system-lead { color: var(--muted); line-height: 1.75; margin-top: 22px; max-width: 640px; }
@@ -219,9 +230,12 @@ button { color: inherit; }
 }
 @media (min-width: 1050px) { .template-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 620px) {
+  .template-detail-heading { align-content: center; min-height: calc(100svh - 80px); }
+  .template-detail-heading h1 { font-size: 3.7rem; line-height: .9; }
+  .template-detail-description { font-size: 1rem; line-height: 1.6; max-width: 19rem; }
   .preview-toolbar > div:first-child,.preview-toolbar > span { display: none; }
   .preview-toolbar { justify-content: center; }
-  .preview-tabs button { padding-inline: 11px; }
+  .preview-tabs label { padding-inline: 11px; }
   .ui-sheet { align-items: end; height: 100%; margin: 0; max-height: 100%; padding: 0; width: 100%; }
   .ui-sheet[open] { display: flex; }
   .ui-sheet > div { border-radius: 28px 28px 0 0; padding-bottom: calc(28px + env(safe-area-inset-bottom)); width: 100%; }

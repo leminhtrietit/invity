@@ -1,10 +1,9 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PublicHeader } from "@/components/public-header";
 import { TemplatePreview } from "@/components/template-preview";
 import { getTemplate, templateCatalog } from "@/lib/templates/catalog";
-import { getTemplateFixture } from "@/lib/templates/fixtures";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { TrackedTemplateCta } from "@/components/tracked-template-cta";
 
@@ -30,17 +29,17 @@ export default async function TemplateDetailPage({ params }: { params: Promise<{
         <AnalyticsBeacon eventName="template_viewed" templateId={template.id}/>
         <section className="shell template-detail-heading">
           <div>
-            <Link className="back-link" href="/templates">← Bộ sưu tập</Link>
+            <a className="back-link" href="/templates">← Bộ sưu tập</a>
             <p className="eyebrow mt-8">{template.categoryLabel}</p>
             <h1 className="display mt-3 text-5xl sm:text-7xl">{template.name}</h1>
-            <p className="mt-5 max-w-xl text-lg leading-8 text-[var(--muted)]">{template.description}</p>
+            <p className="template-detail-description mt-5 max-w-xl text-lg leading-8 text-[var(--muted)]">{template.description}</p>
           </div>
           <div className="template-detail-actions">
             <TrackedTemplateCta templateId={template.id}/>
             <span>Miễn phí · chỉnh sửa sau khi đăng nhập</span>
           </div>
         </section>
-        <TemplatePreview content={getTemplateFixture(template.id)} theme={template.theme} templateId={template.id}/>
+        <TemplatePreview templateId={template.id}/>
       </main>
     </>
   );

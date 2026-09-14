@@ -3,7 +3,9 @@
 **Bên yêu cầu:** Invity  
 **Hệ thống cung cấp:** `auth.leminhtriet.com`  
 **Mục tiêu:** dùng một tài khoản leminhtriet.com để đăng nhập Invity và các sản phẩm khác trong tương lai  
-**Giai đoạn áp dụng:** sau khi Invity mở bản public; tài liệu này là hợp đồng đầu vào để đội Auth thiết kế và triển khai
+**Giai đoạn áp dụng:** đã triển khai sớm ngày 14/09/2026; tài liệu này tiếp tục là hợp đồng cho các phần vận hành nâng cao
+
+> **Trạng thái thực tế:** Invity đã đăng nhập production qua OIDC native Supabase. Issuer đang dùng `https://jebsmjfrbdxdtdeikkus.supabase.co/auth/v1`; custom domain `auth.leminhtriet.com` được hoãn do yêu cầu Supabase Pro. Client Invity được đăng ký thủ công với callback `https://unauvoujwjomloveveij.supabase.co/auth/v1/callback`; Dynamic OAuth App Registration được giữ tắt. Discovery, JWKS, PKCE S256, UserInfo bearer protection, consent, callback, session và binding `(iss, sub)` đã kiểm tra đạt. Không ghi client secret trong tài liệu hoặc log. Xem `G12_IMPLEMENTATION_REPORT.md`.
 
 ## 1. Kết quả cần bàn giao
 

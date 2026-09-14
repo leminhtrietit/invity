@@ -1,6 +1,6 @@
 # INVITE — Kế hoạch triển khai theo giai đoạn
 
-Ngày lập: 10/09/2026. Trạng thái: sẵn sàng phân công; chưa triển khai mã nguồn.
+Ngày lập: 10/09/2026. Cập nhật: 14/09/2026. Trạng thái: G0–G9 đã triển khai; G10 đã đạt gate kỹ thuật tự động và còn UAT/vận hành; G12 OIDC đã triển khai sớm.
 
 Tài liệu chuyển các quyết định sản phẩm đã chốt thành các gói việc có phụ thuộc, đầu ra và tiêu chí nghiệm thu. Mỗi mã INV bên dưới có thể chuyển trực tiếp thành một issue. Chưa tạo issue trên hệ thống bên ngoài.
 
@@ -8,7 +8,7 @@ Tài liệu chuyển các quyết định sản phẩm đã chốt thành các g
 
 | Hạng mục | Quyết định v1 |
 |---|---|
-| Ra mắt | Mở công khai; chủ tiệc đăng nhập Google riêng của Invite |
+| Ra mắt | Mở công khai; chủ tiệc đăng nhập qua tài khoản LeMinhTriet (Google tại IdP tập trung) |
 | Khách | Không cần tài khoản để xem thiệp hoặc RSVP |
 | Stack | Next.js App Router, TypeScript, Supabase Auth/PostgreSQL/Storage, Vercel |
 | Thiết kế | Editorial cao cấp, mobile-first, tiếng Việt |
@@ -22,7 +22,7 @@ Tài liệu chuyển các quyết định sản phẩm đã chốt thành các g
 | Lời chúc | Mặc định riêng tư; chỉ công khai khi khách đồng ý và chủ tiệc duyệt |
 | Quà mừng | QR động chuyển thẳng chủ tiệc; không đối soát và không báo đã thanh toán |
 | Nâng cấp | Form chờ; chưa bán gói hoặc thu tiền |
-| Xác thực chung | Giai đoạn riêng sau v1, không là điều kiện chặn ra mắt |
+| Xác thực chung | Đã triển khai sớm bằng OIDC tập trung; Invity giữ session và ownership riêng |
 
 ### 1.1. Mặc định triển khai
 
@@ -90,7 +90,7 @@ G2 + G5 → G8 VietQR                         [song song G6/G7 nếu đủ ngư�
 G1 + G3 → G9 Landing + đủ 10 mẫu + admin + waitlist [làm dần]
 G5–G9   → G10 Kiểm thử tích hợp + hardening
 G10      → G11 Beta + mở công khai
-Sau v1   → G12 Xác thực chung leminhtriet.com
+G1       → G12 Xác thực chung leminhtriet.com          [đã triển khai sớm]
 ```
 
 Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ thuộc. G9 không có nghĩa đến gần cuối mới bắt đầu thiết kế các mẫu.
@@ -121,9 +121,9 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 - [Wireframe và trạng thái giao diện](G0_WIREFRAMES.md)
 - [Ma trận nghiệm thu và checklist Gate G0](G0_ACCEPTANCE_MATRIX.md)
 
-## 5. G1 — Nền tảng, môi trường và Google Auth
+## 5. G1 — Nền tảng, môi trường và xác thực
 
-> Trạng thái kiểm tra lại 11/09/2026: Supabase `invity` riêng đã nhận migration; Vercel staging hoạt động tại `https://invity-ten.vercel.app`, GitHub CI xanh và callback đã allowlist. Google provider vẫn tắt vì chưa có client ID/secret, nên Gate live chỉ còn phần nghiệm thu đăng nhập Google. Không sử dụng project `leminhtriet.com`. Xem `docs/G1_IMPLEMENTATION_REPORT.md`.
+> Trạng thái kiểm tra lại 14/09/2026: Gate G1 đã đạt. Supabase `invity` riêng đã nhận migration, Vercel production hoạt động tại `https://invity-ten.vercel.app`, CI xanh và đăng nhập OIDC LeMinhTriet đã được kiểm thử trực tiếp đến `/dashboard`. Xem `docs/G1_IMPLEMENTATION_REPORT.md` và `docs/G12_IMPLEMENTATION_REPORT.md`.
 
 **Phụ thuộc:** G0. **Chủ trì:** TL/BE; FE làm app shell.
 
@@ -131,20 +131,20 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 |---|---|---|
 | INV-101 | Khởi tạo Next.js App Router + TypeScript, Tailwind, form/validation, cấu trúc module | Cài từ lockfile; build/lint/typecheck chạy trên máy mới |
 | INV-102 | Tách local, staging và production; cấu hình Vercel/Supabase | Preview không trỏ DB production; có `.env.example` không chứa secret |
-| INV-103 | Google OAuth qua Supabase, callback và session SSR | Login/logout hoạt động; từ chối return URL ngoài ứng dụng; chỉ bật Google |
+| INV-103 | OIDC LeMinhTriet qua Supabase, callback và session SSR | Login/logout hoạt động; từ chối return URL ngoài ứng dụng; chỉ bật provider được tin cậy |
 | INV-104 | App user ID ổn định và auth binding | Login lại không tạo user mới; event sẽ sở hữu bằng app user ID, không bằng email |
 | INV-105 | App shell, protected routes và error boundaries | Dashboard yêu cầu login; thư viện mẫu và thiệp khách không yêu cầu |
 | INV-106 | CI và deploy staging | Mỗi PR chạy kiểm tra; migration kiểm tra trên DB thử; không tự migrate production |
 
-**Chi tiết auth:** chỉ lấy email, tên và avatar; không xin Gmail/Drive/Contacts. Google OAuth bị chặn trong trình duyệt nhúng thì hướng dẫn mở trình duyệt hệ thống và giữ lựa chọn mẫu. Không triển khai đăng nhập chung ở đây.
+**Chi tiết auth:** Invity chỉ lấy email đã xác minh, tên và avatar từ OIDC; không xin Gmail/Drive/Contacts. Google được xử lý tại IdP LeMinhTriet. Webview bị chặn được hướng dẫn mở trình duyệt hệ thống và giữ lựa chọn mẫu.
 
-**Demo:** Chọn mẫu → Google login → dashboard → logout. Thử callback lỗi và hết session.
+**Demo:** Chọn mẫu → LeMinhTriet OIDC → Google/consent tại IdP → dashboard → logout. Thử callback lỗi và hết session.
 
 **Gate G1:** Luồng trên chạy staging, không lộ khóa đặc quyền trong bundle; cấu hình redirect có giới hạn rõ.
 
 ## 6. G2 — Database, phân quyền và lõi quota
 
-> Trạng thái 11/09/2026: implementation và database gate G2 đã đạt. Ba migration đã áp dụng lên Supabase `invity`; 25/25 assertion pgTAP và kiểm thử hai connection tranh suất thứ 50 đều pass trên database remote. Demo hai tài khoản Google qua API còn phụ thuộc Gate live G1. Xem `docs/G2_IMPLEMENTATION_REPORT.md`.
+> Trạng thái 14/09/2026: implementation và database gate G2 đã đạt. Migration đã áp dụng lên Supabase `invity`; pgTAP và kiểm thử hai connection tranh suất thứ 50 đều pass trên database remote. Luồng owner production đã được mở bằng OIDC tập trung. Xem `docs/G2_IMPLEMENTATION_REPORT.md`.
 
 **Phụ thuộc:** G1. **Chủ trì:** BE/TL.
 
@@ -189,7 +189,7 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Phụ thuộc:** G2 + G3. **Chủ trì:** FE; BE phụ trách media và lưu dữ liệu.
 
-> Trạng thái 11/09/2026: Gate kỹ thuật đã đạt. Editor, autosave revision, quản lý ba draft, private signed upload, media worker WASM và preview responsive đã triển khai; pgTAP đạt 37/37. UAT qua hai tài khoản thật chờ bật Google OAuth. Xem `docs/G4_IMPLEMENTATION_REPORT.md`.
+> Trạng thái 14/09/2026: Gate kỹ thuật đã đạt. Editor, autosave revision, quản lý ba draft, private signed upload, media worker WASM và preview responsive đã triển khai; auth production đã hoạt động. UAT nhiều tài khoản/thiết bị thật tiếp tục trong G10/G11. Xem `docs/G4_IMPLEMENTATION_REPORT.md`.
 
 | Issue | Công việc | Đầu ra / nghiệm thu |
 |---|---|---|
@@ -213,7 +213,7 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Phụ thuộc:** G4. **Chủ trì:** FE/BE.
 
-> Trạng thái 11/09/2026: Gate kỹ thuật đã đạt. Publish snapshot/version, quota tháng, public code, SSR envelope/audio/map, public media policy, lifecycle và OG 1200×630 đã triển khai; pgTAP đạt 60/60 và public E2E đạt. UAT owner trên Vercel chờ bật Google OAuth. Xem `docs/G5_IMPLEMENTATION_REPORT.md`.
+> Trạng thái 14/09/2026: Gate kỹ thuật đã đạt. Publish snapshot/version, quota tháng, public code, SSR envelope/audio/map, public media policy, lifecycle và OG 1200×630 đã triển khai; public E2E đạt và owner có thể đăng nhập production qua OIDC. Xem `docs/G5_IMPLEMENTATION_REPORT.md`.
 
 | Issue | Công việc | Đầu ra / nghiệm thu |
 |---|---|---|
@@ -341,7 +341,7 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Gate G10:** Báo cáo nghiệm thu có link bằng chứng; lỗi P2 còn lại phải có owner, tác động và lịch sửa được PO chấp nhận. Không còn vấn đề dữ liệu/quyền truy cập chưa xử lý.
 
-> Trạng thái 13/09/2026: hardening kỹ thuật G10 đã triển khai lên production; CI, migration/pgTAP, concurrency, security headers, cross-site guard và smoke test đều đạt. Gate G10 chưa đóng: LCP Lighthouse mobile trung vị hiện là 4.228 ms; Google OAuth production, UAT thiết bị/webview thật, lịch maintenance và restore drill DB + Storage vẫn cần hoàn tất. Xem `docs/G10_IMPLEMENTATION_REPORT.md`.
+> Trạng thái 14/09/2026: hardening kỹ thuật G10 đã triển khai lên production; CI, migration/pgTAP, concurrency, security headers, cross-site guard, đăng nhập OIDC và smoke test đều đạt. Lighthouse mobile có LCP trung vị 1.894 ms và CLS 0. Phần còn lại trước beta là UAT thiết bị/webview thật, lịch maintenance và restore drill DB + Storage. Xem `docs/G10_IMPLEMENTATION_REPORT.md`.
 
 ## 15. G11 — Beta và mở công khai
 
@@ -363,9 +363,9 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 **Gate G11:** Production mở được cho người dùng công khai và có người chịu trách nhiệm vận hành. Mốc này mới được ghi “v1 đã ra mắt”.
 
-## 16. G12 — Xác thực chung leminhtriet.com, sau v1
+## 16. G12 — Xác thực chung leminhtriet.com
 
-Giai đoạn này là backlog sau ra mắt. Chưa chốt giao thức kết nối khi chưa khảo sát hệ thống hiện có; lập trình viên v1 chỉ chuẩn bị identity boundary, không tự triển khai SSO theo suy đoán.
+Giai đoạn này đã được triển khai sớm ngày 14/09/2026 bằng OIDC native của Supabase Auth. Issuer production tạm dùng domain Supabase vì custom domain yêu cầu gói trả phí; `auth.leminhtriet.com` sẽ được chuyển sau mà không đổi ranh giới ownership của Invity.
 
 | Issue | Công việc | Điều kiện nghiệm thu |
 |---|---|---|
@@ -374,7 +374,7 @@ Giai đoạn này là backlog sau ra mắt. Chưa chốt giao thức kết nối
 | INV-1203 | Adapter và migration thử staging | Tài khoản cũ/mới/trùng email/mất liên kết đều có test; không mất ownership |
 | INV-1204 | Rollout nội bộ → nhóm nhỏ → mở rộng | Có flag và fallback login Google trong chuyển tiếp; theo dõi lỗi liên kết và session |
 
-**Gate đầu vào G12:** TL/PO duyệt hợp đồng danh tính dựa trên kết quả khảo sát. G12 không có hạn hoàn thành giả định trong lịch v1.
+**Trạng thái G12:** Discovery, JWKS, PKCE S256, bảo vệ UserInfo, consent, client production, callback, session và binding `(iss, sub)` đã kiểm tra đạt. Dynamic OAuth client registration đang tắt; client được đăng ký thủ công. Xem `docs/G12_IMPLEMENTATION_REPORT.md`.
 
 ## 17. Lịch dự kiến và mốc demo
 

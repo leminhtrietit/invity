@@ -26,6 +26,10 @@ function formatWeekday(value: string) {
   return new Intl.DateTimeFormat("vi-VN", { weekday: "long", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(value));
 }
 
+function StaticCountdown({ target }: { target: string }) {
+  return <div className="invitation-countdown" aria-label={`Bản xem trước đồng hồ đếm ngược đến ${formatEventDate(target)}`}>{["ngày","giờ","phút","giây"].map((label)=><span key={label}><strong>--</strong><small>{label}</small></span>)}</div>;
+}
+
 export function InvitationRenderer({ content, theme, mode, onOpenGift, templateId="vow-editorial" }: { content: InvitationContent; theme: InvitationTheme; mode: InvitationMode; onOpenGift?:()=>void;templateId?:string }) {
   const themeStyle: ThemeStyle = {
     "--invite-bg": theme.background,
@@ -43,7 +47,7 @@ export function InvitationRenderer({ content, theme, mode, onOpenGift, templateI
 
       <header className={styles.hero}>
         {content.cover ? (
-          <Image className={styles.cover} style={{ objectPosition: `${content.cover.focalX ?? 50}% ${content.cover.focalY ?? 50}%` }} src={content.cover.src} alt={content.cover.alt} fill priority sizes="(max-width: 768px) 100vw, 760px" unoptimized={content.cover.src.startsWith("/api/")} />
+          <Image className={styles.cover} style={{ objectPosition: `${content.cover.focalX ?? 50}% ${content.cover.focalY ?? 50}%` }} src={content.cover.src} alt={content.cover.alt} fill fetchPriority={mode === "public" ? "high" : "auto"} loading={mode === "public" ? "eager" : "lazy"} sizes="(max-width: 768px) 100vw, 760px" unoptimized={content.cover.src.startsWith("/api/")} />
         ) : <div className={styles.coverFallback} aria-hidden="true" />}
         <div className={styles.heroShade} />
         <div className={styles.heroTop}><span>Trân trọng báo tin vui</span><span>{formatShortDate(content.startsAt)}</span></div>
@@ -81,7 +85,7 @@ export function InvitationRenderer({ content, theme, mode, onOpenGift, templateI
         <section className={styles.countdownSection}>
           <p className={styles.kicker}>Hẹn gặp bạn sau</p>
           <h2>Đếm từng khoảnh khắc</h2>
-          <Countdown target={content.startsAt} />
+          {mode === "public" ? <Countdown target={content.startsAt} /> : <StaticCountdown target={content.startsAt} />}
         </section>
       )}
 

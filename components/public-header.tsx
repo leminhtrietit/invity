@@ -1,13 +1,12 @@
-import Link from "next/link";
-
+/* eslint-disable @next/next/no-html-link-for-pages */
 export function PublicHeader() {
   return (
     <header className="shell flex min-h-20 items-center justify-between">
-      <Link className="display text-2xl" href="/" prefetch={false}>Invite</Link>
+      <a className="display text-2xl" href="/">Invite</a>
       <nav aria-label="Điều hướng chính" className="flex items-center gap-3 sm:gap-6">
-        <Link className="hidden text-sm font-semibold sm:block" href="/templates" prefetch={false}>Mẫu thiệp</Link>
-        <Link className="hidden text-sm font-semibold sm:block" href="/pricing" prefetch={false}>Gói dịch vụ</Link>
-        <Link className="button button-secondary text-sm" href="/login" prefetch={false}>Đăng nhập</Link>
+        <a className="hidden text-sm font-semibold sm:block" href="/templates">Mẫu thiệp</a>
+        <a className="hidden text-sm font-semibold sm:block" href="/pricing">Gói dịch vụ</a>
+        <a className="button button-secondary text-sm" href="/login">Đăng nhập</a>
       </nav>
     </header>
   );

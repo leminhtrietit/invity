@@ -9,7 +9,7 @@
 | Retry/race | Idempotency, optimistic revision, publish/quota concurrency | Đạt trên CI |
 | Storage/deletion | Cleanup job sau 7/30 ngày; xóa tài khoản khóa ngay, purge có lease | Đạt schema/pgTAP; backup media cần OPS drill |
 | Mobile/social | Layout 360/390/430/768/1280, reduced motion; OG route 1200×630 | Đạt lab; thiết bị/app thật cần UAT |
-| Performance | Lighthouse mobile 4G trên deployment production | 3 lần lab: CLS 0; LCP trung vị 4.228 ms, chưa đạt gate 2.000 ms |
+| Performance | Lighthouse mobile, simulated throttling, cache lạnh trên production | 3 lần ngày 14/09/2026: LCP 1.894/2.389/1.861 ms, trung vị 1.894 ms; CLS 0 — đạt gate lab |
 
 Thiết bị UAT bắt buộc trước beta: Safari iOS; Chrome Android; Zalo và Messenger trên iOS/Android; Telegram; Safari/Chrome/Edge desktop. Với mỗi lần chạy ghi model thiết bị, OS, app/browser version, mạng, cache lạnh/ấm, public code giả và ảnh/video lỗi.
 

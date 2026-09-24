@@ -31,6 +31,13 @@ if (supabaseUrl && supabaseKey) {
   if (healthUrl.protocol !== "https:") throw new Error("SUPABASE_URL must use HTTPS");
   const health = await fetch(healthUrl, { headers: { apikey: supabaseKey } });
   assert.equal(health.status, 200, `Supabase Auth health returned ${health.status}`);
+  const database = await fetch(new URL("/rest/v1/rpc/get_public_event", supabaseUrl), {
+    method: "POST",
+    headers: { apikey: supabaseKey, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_public_code: "000000000000000000000000000000000000" }),
+  });
+  assert.equal(database.status, 200, `Supabase database RPC returned ${database.status}`);
+  assert.equal(await database.text(), "null", "unknown public event did not return null");
 }
 
-console.log(`Production smoke passed: ${checks.length} pages, social metadata, security headers, cross-site mutation guard and Supabase Auth health.`);
+console.log(`Production smoke passed: ${checks.length} pages, social metadata, security headers, cross-site mutation guard, Supabase Auth and database RPC.`);

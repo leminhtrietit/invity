@@ -14,7 +14,7 @@
 | INV-1003 | Đạt tự động | Idempotency, optimistic revision, publish/quota concurrency và lease job giữ invariant trong CI. |
 | INV-1004 | Đạt gate lab | Ba lần Lighthouse mobile production có LCP 1.894/2.389/1.861 ms, trung vị 1.894 ms; CLS bằng 0. Cần tiếp tục thu field data sau beta để theo dõi p75 thực tế. |
 | INV-1005 | Đạt lab, chờ thiết bị thật | Responsive, reduced motion, OG route 1200×630 và metadata social đã kiểm tra tự động. Safari iOS, Chrome Android và webview Zalo/Messenger/Telegram cần UAT trên thiết bị thật. |
-| INV-1006 | Đạt schema/worker, chờ lần chạy production | Xóa event/account khóa truy cập ngay; purge tài khoản và dọn object dùng lease; worker thường chỉ nhận job của chính owner, maintenance yêu cầu secret. Workflow retention hằng ngày và các secret đã được cấu hình; cần chạy thử sau khi project Supabase khởi động lại và đối chiếu Storage. |
+| INV-1006 | Lịch retention đạt; backup Storage còn chờ | Xóa event/account khóa truy cập ngay; purge tài khoản và dọn object dùng lease. Workflow retention hằng ngày, secret và lần chạy production thủ công đã đạt; còn backup/đối chiếu Storage. |
 | INV-1007 | Có runbook, chưa diễn tập restore | Đã có quy trình backup/restore/rollback với RPO 24 giờ, RTO 8 giờ. Cần project Supabase recovery cô lập và bản sao media để đo RPO/RTO thật. |
 
 ## Hardening đã triển khai
@@ -56,6 +56,6 @@ Không phát hiện P0/P1 trong bộ kiểm thử tự động. Gate kỹ thuậ
 1. Hoàn tất ma trận Safari iOS, Chrome Android, Zalo/Messenger iOS/Android, Telegram và desktop.
 2. Cấu hình secret/lịch maintenance, backup media, rồi diễn tập restore DB + Storage trong project recovery cô lập và ghi RPO/RTO thực tế.
 
-**Cập nhật 24/09/2026:** Đã thêm `scripts/run-retention-maintenance.mjs` và GitHub Actions workflow chạy hằng ngày; unit test cho thứ tự RPC → worker, xử lý hàng đợi và báo lỗi job thất bại. Smoke production đạt lại trên 6 trang tĩnh. Phát hiện Supabase `invity` bị pause (`INACTIVE`), đã bấm Resume và đang chờ trạng thái `ACTIVE_HEALTHY`; vì vậy smoke tĩnh chưa xác nhận được auth/RSVP. Đã cấu hình các secret bảo trì trong Supabase và GitHub environment `Production`; còn phải chạy thử workflow sau khi project hoạt động. Dashboard hiện báo không có backup định kỳ trên gói Free. Gate G10 vẫn chờ UAT thiết bị thật, backup DB/Storage và restore drill.
+**Cập nhật 24/09/2026:** Đã thêm `scripts/run-retention-maintenance.mjs` và GitHub Actions workflow chạy hằng ngày; unit test cho thứ tự RPC → worker, xử lý hàng đợi và báo lỗi job thất bại. Phát hiện Supabase `invity` bị pause (`INACTIVE`), đã Resume và xác nhận `ACTIVE_HEALTHY`. Đã cấu hình secret trong Supabase và GitHub environment `Production`; [workflow chạy thủ công 35952673709](https://github.com/leminhtrietit/invity/actions/runs/35952673709) thành công, dọn 23 rate limit hết hạn và không có job media tồn đọng. Smoke production đã được mở rộng để kiểm tra Auth health và RPC database bên cạnh 6 trang, metadata và header. Dashboard báo gói Free không có backup định kỳ. Theo quyết định PO, tiếp tục dùng Free và giữ G10 chưa đạt cho đến khi chọn nơi lưu backup riêng, diễn tập restore và hoàn tất UAT thiết bị thật.
 
 Tham chiếu: `docs/operations/G10_TEST_MATRIX.md` và `docs/operations/BACKUP_RESTORE_RUNBOOK.md`.

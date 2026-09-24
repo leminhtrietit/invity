@@ -20,7 +20,7 @@
 2. Khôi phục database backup. Chạy migration còn thiếu theo thứ tự; không sửa migration đã phát hành.
 3. Khôi phục bucket từ manifest và đối chiếu key, byte, checksum mẫu.
 4. Dùng tài khoản kiểm thử xác nhận owner chỉ đọc event của mình; thiệp published mở được; token revoked bị từ chối; RSVP và VietQR trỏ đúng event/recipient.
-5. Chạy `pnpm check`, toàn bộ pgTAP G2–G10, concurrency test và smoke test với `SITE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` trỏ đến môi trường restore. Smoke test phải xác nhận cả Supabase Auth health; không chỉ kiểm tra trang tĩnh.
+5. Chạy `pnpm check`, toàn bộ pgTAP G2–G10, concurrency test và smoke test với `SITE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` trỏ đến môi trường restore. Smoke test phải xác nhận Supabase Auth health và RPC database; không chỉ kiểm tra trang tĩnh.
 6. Ghi thời gian bắt đầu/kết thúc, recovery point, sai lệch và người duyệt vào báo cáo diễn tập. Xóa project diễn tập và bản dữ liệu tạm theo chính sách.
 
 ## Rollback code

@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 
 const siteUrl = new URL(process.env.SITE_URL ?? "http://localhost:3000");
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+if (siteUrl.hostname !== "localhost" && (!supabaseUrl || !supabaseKey)) {
+  throw new Error("Remote smoke requires SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY");
+}
 const checks = ["/", "/templates", "/templates/vow-editorial", "/pricing", "/privacy", "/contact"];
 
 for (const path of checks) {
@@ -21,4 +26,11 @@ const csrf = await fetch(new URL("/api/v1/analytics", siteUrl), {
 });
 assert.equal(csrf.status, 403, `cross-site mutation returned ${csrf.status}`);
 
-console.log(`Production smoke passed: ${checks.length} pages, social metadata, security headers and cross-site mutation guard.`);
+if (supabaseUrl && supabaseKey) {
+  const healthUrl = new URL("/auth/v1/health", supabaseUrl);
+  if (healthUrl.protocol !== "https:") throw new Error("SUPABASE_URL must use HTTPS");
+  const health = await fetch(healthUrl, { headers: { apikey: supabaseKey } });
+  assert.equal(health.status, 200, `Supabase Auth health returned ${health.status}`);
+}
+
+console.log(`Production smoke passed: ${checks.length} pages, social metadata, security headers, cross-site mutation guard and Supabase Auth health.`);

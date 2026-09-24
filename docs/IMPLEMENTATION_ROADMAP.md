@@ -343,6 +343,8 @@ Giai đoạn có thể chồng lịch, nhưng không được bỏ gate phụ th
 
 > Trạng thái 14/09/2026: hardening kỹ thuật G10 đã triển khai lên production; CI, migration/pgTAP, concurrency, security headers, cross-site guard, đăng nhập OIDC và smoke test đều đạt. Lighthouse mobile có LCP trung vị 1.894 ms và CLS 0. Phần còn lại trước beta là UAT thiết bị/webview thật, lịch maintenance và restore drill DB + Storage. Xem `docs/G10_IMPLEMENTATION_REPORT.md`.
 
+> Cập nhật 24/09/2026: workflow retention hằng ngày và secret đã được cấu hình, chờ chạy thử trên production. Supabase `invity` được phát hiện ở trạng thái `INACTIVE` và đã bắt đầu Resume; cần xác nhận `ACTIVE_HEALTHY` cùng luồng auth/RSVP. UAT thiết bị thật và restore drill vẫn chưa có bằng chứng nghiệm thu, nên chưa mở gate G11.
+
 ## 15. G11 — Beta và mở công khai
 
 **Phụ thuộc:** G10. **Chủ trì:** PO/OPS, cả đội hỗ trợ.

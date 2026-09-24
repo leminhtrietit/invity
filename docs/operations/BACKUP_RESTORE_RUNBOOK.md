@@ -34,5 +34,5 @@
 
 - Backup/manifest: hằng ngày, OPS phụ trách.
 - Restore drill: trước beta và mỗi quý.
-- Retention maintenance: hằng ngày bằng service role; worker cleanup cần `MEDIA_WORKER_SECRET` trong Supabase secret store.
+- Retention maintenance: workflow `retention-maintenance.yml` chạy 01:17 giờ Việt Nam hằng ngày và có thể chạy thủ công. Trong GitHub environment `Production`, cấu hình `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` và `MEDIA_WORKER_SECRET`; giá trị cuối phải khớp secret trong Supabase Edge Function. Workflow gọi RPC retention rồi xử lý hàng đợi `media-worker` theo lô; lỗi HTTP/job hoặc backlog quá 100 lô làm workflow thất bại. OPS bật cảnh báo khi workflow thất bại và kiểm tra lần chạy thủ công đầu tiên trước beta.
 - Mọi thất bại backup/restore là P1; xác nhận mất hoặc lộ dữ liệu là P0.

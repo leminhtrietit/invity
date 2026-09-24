@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./launch.css";
+@import "./home-experience.css";
 
 :root {
   --background: #f7f4ef;

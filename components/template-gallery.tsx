@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import type { TemplateCategory, TemplateDefinition } from "@/lib/templates/catalog";
+import { templateArt } from "@/lib/templates/catalog";
 
 const filters: { label: string; value: "all" | TemplateCategory }[] = [
   { label: "Tất cả", value: "all" },
@@ -26,7 +28,9 @@ export function TemplateGallery({ templates }: { templates: TemplateDefinition[]
       {visible.map((template) => {
         const index = templates.findIndex((item) => item.id === template.id);
         return <article className={`template-card ${template.featured && active === "all" ? "template-card-featured" : ""}`} key={template.id}>
-          <Link aria-label={`Xem mẫu ${template.name}`} className="template-art" href={`/templates/${template.id}`} style={{ background: `linear-gradient(155deg, ${template.theme.ink}, ${template.theme.accent})`, color: template.theme.surface }}>
+          <Link aria-label={`Xem mẫu ${template.name}`} className="template-art" data-template={template.id} href={`/templates/${template.id}`} style={{ background: template.theme.background, color: template.theme.surface }}>
+            <Image alt="" className="template-art-image" fill sizes="(max-width: 700px) 50vw, 33vw" src={templateArt[template.id].src} />
+            <span className="template-art-shade" />
             <span className="template-index">{String(index + 1).padStart(2, "0")}</span>
             <span className="template-motif">{template.motif}</span>
             <span className="template-art-name">{template.name}</span>

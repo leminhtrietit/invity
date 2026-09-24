@@ -16,5 +16,5 @@ export default async function EditEventPage({ params }: { params: Promise<{ even
   if (!data) notFound();
   const draft = Array.isArray(data.event_drafts) ? data.event_drafts[0] : data.event_drafts;
   const parsed = invitationContentSchema.safeParse(draft?.content);
-  return <EventEditor eventId={data.id} initialContent={parsed.success ? parsed.data : defaultDraftContent()} initialRevision={draft?.revision ?? 1} initialTemplateId={data.template_id} initiallyPersisted={parsed.success} initialLifecycle={data.lifecycle} initialPublicCode={data.public_code} />;
+  return <EventEditor eventId={data.id} initialContent={parsed.success ? parsed.data : defaultDraftContent(data.template_id)} initialRevision={draft?.revision ?? 1} initialTemplateId={data.template_id} initiallyPersisted={parsed.success} initialLifecycle={data.lifecycle} initialPublicCode={data.public_code} />;
 }

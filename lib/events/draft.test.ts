@@ -18,6 +18,15 @@ test("default draft is a valid, independent editor payload", () => {
   assert.notEqual(second.title, first.title);
 });
 
+test("new draft starts with the chosen template's content and art", () => {
+  const birthday = defaultDraftContent("confetti-club");
+  const graduation = defaultDraftContent("new-chapter");
+  assert.match(birthday.title, /Linh/);
+  assert.match(birthday.cover?.src ?? "", /confetti-club/);
+  assert.match(graduation.title, /tốt nghiệp/i);
+  assert.match(graduation.cover?.src ?? "", /new-chapter/);
+});
+
 test("template and category must match the catalog", () => {
   assert.equal(createEventSchema.safeParse({ templateId: "vow-editorial", eventCategory: "wedding" }).success, true);
   assert.equal(validateTemplateCategory("vow-editorial", "wedding"), true);

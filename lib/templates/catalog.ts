@@ -31,3 +31,16 @@ export const templateCatalog: TemplateDefinition[] = [
 export function getTemplate(id: string) {
   return templateCatalog.find((template) => template.id === id);
 }
+
+export const templateArt: Record<string, { src: string; alt: string }> = {
+  "vow-editorial": { src: "/images/templates/vow-editorial-cover.webp", alt: "Cặp đôi trong khu vườn cổ" },
+  "silk-promise": { src: "/images/templates/silk-promise-cover.webp", alt: "Trầu cau, lá trầu và lụa đỏ trên bàn lễ" },
+  "garden-vow": { src: "/images/templates/garden-vow-cover.webp", alt: "Cặp đôi đi giữa khu vườn hoa" },
+  "midnight-toast": { src: "/images/templates/midnight-toast-cover.webp", alt: "Hai ly tiệc tối dưới ánh đèn thành phố" },
+  "little-orbit": { src: "/images/templates/little-orbit-cover.webp", alt: "Mây giấy và mặt trời trong khung cảnh màu bạc hà" },
+  "confetti-club": { src: "/images/templates/confetti-club-cover.webp", alt: "Bóng bay và dây trang trí trong studio sắc cam" },
+  "new-chapter": { src: "/images/templates/new-chapter-cover.webp", alt: "Mũ tốt nghiệp và những cuốn sổ dưới nắng chiều" },
+  "linen-table": { src: "/images/templates/linen-table-cover.webp", alt: "Bàn ăn gia đình ấm áp với món Việt" },
+  "afterglow": { src: "/images/templates/afterglow-cover.webp", alt: "Hai bàn tay chạm nhau trong ánh hoàng hôn" },
+  "reunion-notes": { src: "/images/templates/reunion-notes-cover.webp", alt: "Những tấm ảnh kỷ niệm và trang giấy cũ" },
+};

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { vowEditorialFixture } from "../invitation/fixtures.ts";
 import { invitationContentSchema } from "../invitation/schema.ts";
 import { getTemplate } from "../templates/catalog.ts";
+import { getTemplateFixture } from "../templates/fixtures.ts";
 
 export const eventCategorySchema = z.enum(["wedding", "engagement", "birthday_baby", "graduation", "other"]);
 export const createEventSchema = z.object({ templateId: z.string().min(1).max(80), eventCategory: eventCategorySchema });
@@ -24,8 +24,8 @@ export const mediaUploadCompleteSchema = mediaUploadSchema.and(z.object({
   path: z.string().min(1).max(600),
 }));
 
-export function defaultDraftContent() {
-  return structuredClone(vowEditorialFixture);
+export function defaultDraftContent(templateId = "vow-editorial") {
+  return getTemplateFixture(templateId);
 }
 
 export function validateTemplateCategory(templateId: string, category: string) {

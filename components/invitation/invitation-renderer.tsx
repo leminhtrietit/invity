@@ -6,6 +6,19 @@ import styles from "./invitation-renderer.module.css";
 
 type ThemeStyle = CSSProperties & Record<`--invite-${string}`, string>;
 
+const templateVoice: Record<string, { top: string; hero: string; intro: string; album: string; footer: string; seal: string }> = {
+  "vow-editorial": { top: "Trân trọng báo tin vui", hero: "Save the date", intro: "Một lời mời từ chúng mình", album: "Thương nhau từ những điều rất nhỏ.", footer: "Cảm ơn bạn đã là một phần trong câu chuyện của chúng mình.", seal: "✦" },
+  "silk-promise": { top: "Lễ đính hôn", hero: "Trầu cau đầu chuyện", intro: "Hai gia đình, một lời hẹn", album: "Một lời thưa, một đời thương.", footer: "Trân trọng đón bạn trong ngày vui của hai gia đình.", seal: "囍" },
+  "garden-vow": { top: "Một ngày giữa khu vườn", hero: "Together in bloom", intro: "Chuyện của hai người", album: "Nơi tình yêu nở hoa.", footer: "Hẹn gặp bạn giữa một ngày thật nhiều nắng.", seal: "❀" },
+  "midnight-toast": { top: "An evening invitation", hero: "The night is ours", intro: "Hẹn một đêm đáng nhớ", album: "To the nights we remember.", footer: "Cùng nâng ly cho những khoảnh khắc đẹp.", seal: "✷" },
+  "little-orbit": { top: "Một vòng quanh mặt trời", hero: "One little orbit", intro: "Ngày vui của bé", album: "Một tuổi, muôn điều kỳ diệu.", footer: "Cảm ơn bạn đã cùng bé lớn lên trong yêu thương.", seal: "☼" },
+  "confetti-club": { top: "Birthday invitation", hero: "Let's celebrate", intro: "Ngày vui hết cỡ", album: "More color. More memories.", footer: "Mang niềm vui đến, đem kỷ niệm về.", seal: "✳" },
+  "new-chapter": { top: "Graduation day", hero: "The next chapter", intro: "Một cột mốc mới", album: "Hành trình đẹp nhất vẫn ở phía trước.", footer: "Cảm ơn bạn đã đồng hành trong một chặng đường.", seal: "↗" },
+  "linen-table": { top: "Mời bạn đến nhà", hero: "Come on in", intro: "Một bàn tiệc, nhiều câu chuyện", album: "Nhà vui hơn khi có bạn.", footer: "Chúng mình dành sẵn một chỗ cho bạn.", seal: "⌂" },
+  "afterglow": { top: "Lễ đính hôn", hero: "A promise in light", intro: "Lời hẹn lúc hoàng hôn", album: "Giữ mãi khoảnh khắc này.", footer: "Mong được chia sẻ ngày dịu dàng này cùng bạn.", seal: "✧" },
+  "reunion-notes": { top: "The reunion", hero: "Back together", intro: "Những câu chuyện còn tiếp", album: "Ngày ấy và bây giờ, vẫn là chúng ta.", footer: "Hẹn gặp lại để kể tiếp chuyện của chúng ta.", seal: "✎" },
+};
+
 function formatEventDate(value: string) {
   return new Intl.DateTimeFormat("vi-VN", {
     weekday: "long", day: "2-digit", month: "long", year: "numeric", timeZone: "Asia/Ho_Chi_Minh",
@@ -40,26 +53,30 @@ export function InvitationRenderer({ content, theme, mode, onOpenGift, templateI
     "--invite-accent-soft": theme.accentSoft,
   };
   const names = content.hosts.map((host) => host.name);
+  const voice = templateVoice[templateId] ?? templateVoice["vow-editorial"];
 
   return (
     <article className={`${styles.invitation} ${styles[theme.displayFont]}`} style={themeStyle} data-mode={mode} data-template={templateId}>
       {mode === "preview" && <div className={styles.previewFlag}>Bản xem thử · không ghi lượt mở</div>}
 
       <header className={styles.hero}>
-        {content.cover ? (
-          <Image className={styles.cover} style={{ objectPosition: `${content.cover.focalX ?? 50}% ${content.cover.focalY ?? 50}%` }} src={content.cover.src} alt={content.cover.alt} fill fetchPriority={mode === "public" ? "high" : "auto"} loading={mode === "public" ? "eager" : "lazy"} sizes="(max-width: 768px) 100vw, 760px" unoptimized={content.cover.src.startsWith("/api/")} />
-        ) : <div className={styles.coverFallback} aria-hidden="true" />}
+        <div className={styles.coverFrame}>
+          {content.cover ? (
+            <Image className={styles.cover} style={{ objectPosition: `${content.cover.focalX ?? 50}% ${content.cover.focalY ?? 50}%` }} src={content.cover.src} alt={content.cover.alt} fill fetchPriority={mode === "public" ? "high" : "auto"} loading={mode === "public" ? "eager" : "lazy"} sizes="(max-width: 768px) 100vw, 760px" unoptimized={content.cover.src.startsWith("/api/")} />
+          ) : <div className={styles.coverFallback} aria-hidden="true" />}
+        </div>
         <div className={styles.heroShade} />
-        <div className={styles.heroTop}><span>Trân trọng báo tin vui</span><span>{formatShortDate(content.startsAt)}</span></div>
+        <div className={styles.heroTop}><span>{voice.top}</span><span>{formatShortDate(content.startsAt)}</span></div>
+        <span className={styles.heroSeal} aria-hidden="true">{voice.seal}</span>
         <div className={styles.heroCopy}>
-          <p>Save the date</p>
-          <h1>{names.map((name, index) => <span key={name}>{index > 0 && <i>&amp;</i>}{name}</span>)}</h1>
+          <p>{voice.hero}</p>
+          <h1>{names.map((name, index) => <span key={`${name}-${index}`}>{index > 0 && <i>&amp;</i>}{name}</span>)}</h1>
           <div className={styles.scrollCue}><span /> Cuộn để mở thiệp</div>
         </div>
       </header>
 
       <section className={styles.intro}>
-        <p className={styles.kicker}>Một lời mời từ chúng mình</p>
+        <p className={styles.kicker}>{voice.intro}</p>
         <h2>{content.title}</h2>
         {content.prelude && <p className={styles.lead}>{content.prelude}</p>}
         <div className={styles.dateLockup}>
@@ -113,7 +130,7 @@ export function InvitationRenderer({ content, theme, mode, onOpenGift, templateI
           <div className={styles.albumImage}>
             <Image style={{ objectPosition: `${content.album[0].focalX ?? 50}% ${content.album[0].focalY ?? 50}%` }} src={content.album[0].src} alt={content.album[0].alt} fill sizes="(max-width: 768px) 100vw, 760px" unoptimized={content.album[0].src.startsWith("/api/")} />
           </div>
-          <div className={styles.albumNote}><span>Our days</span><p>“Thương nhau từ những điều rất nhỏ.”</p></div>
+          <div className={styles.albumNote}><span>Khoảnh khắc</span><p>“{voice.album}”</p></div>
         </section>
       )}
 
@@ -140,7 +157,7 @@ export function InvitationRenderer({ content, theme, mode, onOpenGift, templateI
         </section>
       )}
 
-      <footer className={styles.footer}><span>{names.join(" & ")}</span><p>Cảm ơn bạn đã là một phần trong câu chuyện của chúng mình.</p><small>Made with Invite</small></footer>
+      <footer className={styles.footer}><span>{names.join(" & ")}</span><p>{voice.footer}</p><small>Made with Invite</small></footer>
     </article>
   );
 }
